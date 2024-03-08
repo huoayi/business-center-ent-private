@@ -3,7 +3,7 @@
 package ent_work
 
 import (
-	"graduation-project-ent/pkg/ent-work/schema"
+	"graduation-project-ent/pkg/ent_work/schema"
 	"graduation-project-ent/pkg/ent_work/user"
 	"time"
 )
