@@ -13,12 +13,14 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"graduation-project-ent/configs"
+	"graduation-project-ent/pkg/ent_work"
 
 	"time"
 )
 
 var url = ""
 
+var DB *ent_work.Client
 
 func init() {
 	dbConf := configs.Conf.DBConfig
@@ -45,7 +47,7 @@ func migrateWithMigrationFiles() (err error) {
 	return nil
 }
 
-func NewDBClient(dbConf configs.DBConfig) *cep_ent.Client {
+func NewDBClient(dbConf configs.DBConfig) *ent_work.Client {
 	dataSourceName := fmt.Sprintf("host=%s port=%v user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai", dbConf.Host, dbConf.Port, dbConf.Username, dbConf.Password, dbConf.Database)
 	logrus.Debugf("dsn: %s\n", dataSourceName)
 	db, err := sql.Open("pgx", dataSourceName)
@@ -60,5 +62,5 @@ func NewDBClient(dbConf configs.DBConfig) *cep_ent.Client {
 		panic(fmt.Sprintf("new db client failed: %v", err))
 	}
 	drv := entsql.OpenDB(dialect.Postgres, db)
-	return cep_ent.NewClient(cep_ent.Driver(drv))
+	return ent_work.NewClient(ent_work.Driver(drv))
 }
