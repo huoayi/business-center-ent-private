@@ -17,11 +17,11 @@ type Config struct {
 }
 
 type DBConfig struct {
-	Host     string
-	Port     int
-	Username string
-	Password string
-	Database string
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Database string `mapstructure:"database"`
 }
 
 func init() {
@@ -55,5 +55,6 @@ func init() {
 		panic(fmt.Sprintf("failed at init config: %v", err))
 	}
 	// 返回 nil 或错误
+	logrus.Info(Conf.Password)
 	logrus.Infoln("global config init success...")
 }
