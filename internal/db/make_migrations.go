@@ -11,8 +11,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/sirupsen/logrus"
 	// 需要初始化数据库配置
-	"github.com/huoayi/graduation-project-ent/configs"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/migrate"
+	"github.com/huoayi/business-center-ent-private/configs"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/migrate"
 
 	"os"
 )

@@ -11,8 +11,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/predicate"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 )
 
 const (

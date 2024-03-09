@@ -9,12 +9,12 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/migrate"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 )
 
 // Client is the client that holds all ent builders.

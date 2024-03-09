@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/huoayi/graduation-project-ent/common"
-	"github.com/huoayi/graduation-project-ent/internal/db"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/common"
+	"github.com/huoayi/business-center-ent-private/internal/db"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/sirupsen/logrus"
 )
 

@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work"
 	// required by schema hooks.
-	_ "github.com/huoayi/graduation-project-ent/pkg/ent_work/runtime"
+	_ "github.com/huoayi/business-center-ent-private/pkg/ent_work/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/migrate"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/migrate"
 )
 
 type (

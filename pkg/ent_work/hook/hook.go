@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work"
 )
 
 // The UserFunc type is an adapter to allow the use of ordinary

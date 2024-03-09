@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 )
 
 // UserCreate is the builder for creating a User entity.

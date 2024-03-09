@@ -1,4 +1,4 @@
-module github.com/huoayi/graduation-project-ent
+module github.com/huoayi/business-center-ent-private
 
 go 1.21
 
