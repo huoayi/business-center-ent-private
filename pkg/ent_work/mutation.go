@@ -6,13 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"graduation-project-ent/pkg/ent_work/predicate"
-	"graduation-project-ent/pkg/ent_work/user"
 	"sync"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/predicate"
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
 )
 
 const (

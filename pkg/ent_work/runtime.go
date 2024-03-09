@@ -3,9 +3,10 @@
 package ent_work
 
 import (
-	"graduation-project-ent/pkg/ent_work/schema"
-	"graduation-project-ent/pkg/ent_work/user"
 	"time"
+
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/schema"
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
 )
 
 // The init function reads all schema descriptors with runtime code

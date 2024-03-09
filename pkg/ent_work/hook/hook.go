@@ -5,7 +5,8 @@ package hook
 import (
 	"context"
 	"fmt"
-	"graduation-project-ent/pkg/ent_work"
+
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work"
 )
 
 // The UserFunc type is an adapter to allow the use of ordinary

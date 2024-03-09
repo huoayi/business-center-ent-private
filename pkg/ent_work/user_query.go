@@ -5,13 +5,13 @@ package ent_work
 import (
 	"context"
 	"fmt"
-	"graduation-project-ent/pkg/ent_work/predicate"
-	"graduation-project-ent/pkg/ent_work/user"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/predicate"
+	"github.com/huoayi/graduation-project-ent/pkg/ent_work/user"
 )
 
 // UserQuery is the builder for querying User entities.
