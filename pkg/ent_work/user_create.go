@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
@@ -287,6 +288,21 @@ func (uc *UserCreate) SetNillableID(i *int64) *UserCreate {
 		uc.SetID(*i)
 	}
 	return uc
+}
+
+// AddLoginRecordIDs adds the "login_records" edge to the LoginRecord entity by IDs.
+func (uc *UserCreate) AddLoginRecordIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddLoginRecordIDs(ids...)
+	return uc
+}
+
+// AddLoginRecords adds the "login_records" edges to the LoginRecord entity.
+func (uc *UserCreate) AddLoginRecords(l ...*LoginRecord) *UserCreate {
+	ids := make([]int64, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uc.AddLoginRecordIDs(ids...)
 }
 
 // AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
@@ -601,6 +617,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.CloudSpace(); ok {
 		_spec.SetField(user.FieldCloudSpace, field.TypeInt64, value)
 		_node.CloudSpace = value
+	}
+	if nodes := uc.mutation.LoginRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := uc.mutation.VxSocialsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

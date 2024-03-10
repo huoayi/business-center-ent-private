@@ -9,6 +9,18 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work"
 )
 
+// The LoginRecordFunc type is an adapter to allow the use of ordinary
+// function as LoginRecord mutator.
+type LoginRecordFunc func(context.Context, *ent_work.LoginRecordMutation) (ent_work.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f LoginRecordFunc) Mutate(ctx context.Context, m ent_work.Mutation) (ent_work.Value, error) {
+	if mv, ok := m.(*ent_work.LoginRecordMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent_work.LoginRecordMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent_work.UserMutation) (ent_work.Value, error)

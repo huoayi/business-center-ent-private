@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -19,14 +20,15 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx           *QueryContext
-	order         []user.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.User
-	withVxSocials *VXSocialQuery
-	withParent    *UserQuery
-	withChildren  *UserQuery
-	modifiers     []func(*sql.Selector)
+	ctx              *QueryContext
+	order            []user.OrderOption
+	inters           []Interceptor
+	predicates       []predicate.User
+	withLoginRecords *LoginRecordQuery
+	withVxSocials    *VXSocialQuery
+	withParent       *UserQuery
+	withChildren     *UserQuery
+	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,6 +63,28 @@ func (uq *UserQuery) Unique(unique bool) *UserQuery {
 func (uq *UserQuery) Order(o ...user.OrderOption) *UserQuery {
 	uq.order = append(uq.order, o...)
 	return uq
+}
+
+// QueryLoginRecords chains the current query on the "login_records" edge.
+func (uq *UserQuery) QueryLoginRecords() *LoginRecordQuery {
+	query := (&LoginRecordClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(loginrecord.Table, loginrecord.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginRecordsTable, user.LoginRecordsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryVxSocials chains the current query on the "vx_socials" edge.
@@ -316,18 +340,30 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:        uq.config,
-		ctx:           uq.ctx.Clone(),
-		order:         append([]user.OrderOption{}, uq.order...),
-		inters:        append([]Interceptor{}, uq.inters...),
-		predicates:    append([]predicate.User{}, uq.predicates...),
-		withVxSocials: uq.withVxSocials.Clone(),
-		withParent:    uq.withParent.Clone(),
-		withChildren:  uq.withChildren.Clone(),
+		config:           uq.config,
+		ctx:              uq.ctx.Clone(),
+		order:            append([]user.OrderOption{}, uq.order...),
+		inters:           append([]Interceptor{}, uq.inters...),
+		predicates:       append([]predicate.User{}, uq.predicates...),
+		withLoginRecords: uq.withLoginRecords.Clone(),
+		withVxSocials:    uq.withVxSocials.Clone(),
+		withParent:       uq.withParent.Clone(),
+		withChildren:     uq.withChildren.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
+}
+
+// WithLoginRecords tells the query-builder to eager-load the nodes that are connected to
+// the "login_records" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithLoginRecords(opts ...func(*LoginRecordQuery)) *UserQuery {
+	query := (&LoginRecordClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withLoginRecords = query
+	return uq
 }
 
 // WithVxSocials tells the query-builder to eager-load the nodes that are connected to
@@ -441,7 +477,8 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
+			uq.withLoginRecords != nil,
 			uq.withVxSocials != nil,
 			uq.withParent != nil,
 			uq.withChildren != nil,
@@ -468,6 +505,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := uq.withLoginRecords; query != nil {
+		if err := uq.loadLoginRecords(ctx, query, nodes,
+			func(n *User) { n.Edges.LoginRecords = []*LoginRecord{} },
+			func(n *User, e *LoginRecord) { n.Edges.LoginRecords = append(n.Edges.LoginRecords, e) }); err != nil {
+			return nil, err
+		}
+	}
 	if query := uq.withVxSocials; query != nil {
 		if err := uq.loadVxSocials(ctx, query, nodes,
 			func(n *User) { n.Edges.VxSocials = []*VXSocial{} },
@@ -491,6 +535,36 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	return nodes, nil
 }
 
+func (uq *UserQuery) loadLoginRecords(ctx context.Context, query *LoginRecordQuery, nodes []*User, init func(*User), assign func(*User, *LoginRecord)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(loginrecord.FieldUserID)
+	}
+	query.Where(predicate.LoginRecord(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.LoginRecordsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (uq *UserQuery) loadVxSocials(ctx context.Context, query *VXSocialQuery, nodes []*User, init func(*User), assign func(*User, *VXSocial)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int64]*User)

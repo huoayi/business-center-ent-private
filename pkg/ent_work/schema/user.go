@@ -38,6 +38,7 @@ func (User) Indexes() []ent.Index {
 
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.To("login_records", LoginRecord.Type),
 		edge.To("vx_socials", VXSocial.Type),
 		edge.To("children", User.Type).From("parent").Unique().Required().Field("parent_id"),
 	}

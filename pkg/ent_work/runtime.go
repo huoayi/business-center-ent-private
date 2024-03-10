@@ -5,6 +5,7 @@ package ent_work
 import (
 	"time"
 
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/schema"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -14,6 +15,53 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	loginrecordMixin := schema.LoginRecord{}.Mixin()
+	loginrecordMixinFields0 := loginrecordMixin[0].Fields()
+	_ = loginrecordMixinFields0
+	loginrecordFields := schema.LoginRecord{}.Fields()
+	_ = loginrecordFields
+	// loginrecordDescCreatedBy is the schema descriptor for created_by field.
+	loginrecordDescCreatedBy := loginrecordMixinFields0[1].Descriptor()
+	// loginrecord.DefaultCreatedBy holds the default value on creation for the created_by field.
+	loginrecord.DefaultCreatedBy = loginrecordDescCreatedBy.Default.(int64)
+	// loginrecordDescUpdatedBy is the schema descriptor for updated_by field.
+	loginrecordDescUpdatedBy := loginrecordMixinFields0[2].Descriptor()
+	// loginrecord.DefaultUpdatedBy holds the default value on creation for the updated_by field.
+	loginrecord.DefaultUpdatedBy = loginrecordDescUpdatedBy.Default.(int64)
+	// loginrecordDescCreatedAt is the schema descriptor for created_at field.
+	loginrecordDescCreatedAt := loginrecordMixinFields0[3].Descriptor()
+	// loginrecord.DefaultCreatedAt holds the default value on creation for the created_at field.
+	loginrecord.DefaultCreatedAt = loginrecordDescCreatedAt.Default.(func() time.Time)
+	// loginrecordDescUpdatedAt is the schema descriptor for updated_at field.
+	loginrecordDescUpdatedAt := loginrecordMixinFields0[4].Descriptor()
+	// loginrecord.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	loginrecord.DefaultUpdatedAt = loginrecordDescUpdatedAt.Default.(func() time.Time)
+	// loginrecord.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	loginrecord.UpdateDefaultUpdatedAt = loginrecordDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// loginrecordDescDeletedAt is the schema descriptor for deleted_at field.
+	loginrecordDescDeletedAt := loginrecordMixinFields0[5].Descriptor()
+	// loginrecord.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	loginrecord.DefaultDeletedAt = loginrecordDescDeletedAt.Default.(time.Time)
+	// loginrecordDescUa is the schema descriptor for ua field.
+	loginrecordDescUa := loginrecordFields[0].Descriptor()
+	// loginrecord.DefaultUa holds the default value on creation for the ua field.
+	loginrecord.DefaultUa = loginrecordDescUa.Default.(string)
+	// loginrecordDescIP is the schema descriptor for ip field.
+	loginrecordDescIP := loginrecordFields[1].Descriptor()
+	// loginrecord.DefaultIP holds the default value on creation for the ip field.
+	loginrecord.DefaultIP = loginrecordDescIP.Default.(string)
+	// loginrecordDescWay is the schema descriptor for way field.
+	loginrecordDescWay := loginrecordFields[2].Descriptor()
+	// loginrecord.DefaultWay holds the default value on creation for the way field.
+	loginrecord.DefaultWay = loginrecordDescWay.Default.(string)
+	// loginrecordDescUserID is the schema descriptor for user_id field.
+	loginrecordDescUserID := loginrecordFields[3].Descriptor()
+	// loginrecord.DefaultUserID holds the default value on creation for the user_id field.
+	loginrecord.DefaultUserID = loginrecordDescUserID.Default.(int64)
+	// loginrecordDescID is the schema descriptor for id field.
+	loginrecordDescID := loginrecordMixinFields0[0].Descriptor()
+	// loginrecord.DefaultID holds the default value on creation for the id field.
+	loginrecord.DefaultID = loginrecordDescID.Default.(func() int64)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

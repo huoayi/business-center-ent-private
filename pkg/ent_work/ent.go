@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
@@ -74,8 +75,9 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table:     user.ValidColumn,
-			vxsocial.Table: vxsocial.ValidColumn,
+			loginrecord.Table: loginrecord.ValidColumn,
+			user.Table:        user.ValidColumn,
+			vxsocial.Table:    vxsocial.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

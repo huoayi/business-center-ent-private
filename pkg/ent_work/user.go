@@ -62,6 +62,8 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
+	// LoginRecords holds the value of the login_records edge.
+	LoginRecords []*LoginRecord `json:"login_records,omitempty"`
 	// VxSocials holds the value of the vx_socials edge.
 	VxSocials []*VXSocial `json:"vx_socials,omitempty"`
 	// Parent holds the value of the parent edge.
@@ -70,13 +72,22 @@ type UserEdges struct {
 	Children []*User `json:"children,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
+}
+
+// LoginRecordsOrErr returns the LoginRecords value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) LoginRecordsOrErr() ([]*LoginRecord, error) {
+	if e.loadedTypes[0] {
+		return e.LoginRecords, nil
+	}
+	return nil, &NotLoadedError{edge: "login_records"}
 }
 
 // VxSocialsOrErr returns the VxSocials value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) VxSocialsOrErr() ([]*VXSocial, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.VxSocials, nil
 	}
 	return nil, &NotLoadedError{edge: "vx_socials"}
@@ -87,7 +98,7 @@ func (e UserEdges) VxSocialsOrErr() ([]*VXSocial, error) {
 func (e UserEdges) ParentOrErr() (*User, error) {
 	if e.Parent != nil {
 		return e.Parent, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[2] {
 		return nil, &NotFoundError{label: user.Label}
 	}
 	return nil, &NotLoadedError{edge: "parent"}
@@ -96,7 +107,7 @@ func (e UserEdges) ParentOrErr() (*User, error) {
 // ChildrenOrErr returns the Children value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) ChildrenOrErr() ([]*User, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[3] {
 		return e.Children, nil
 	}
 	return nil, &NotLoadedError{edge: "children"}
@@ -255,6 +266,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryLoginRecords queries the "login_records" edge of the User entity.
+func (u *User) QueryLoginRecords() *LoginRecordQuery {
+	return NewUserClient(u.config).QueryLoginRecords(u)
 }
 
 // QueryVxSocials queries the "vx_socials" edge of the User entity.

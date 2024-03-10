@@ -51,6 +51,8 @@ const (
 	FieldCloudSpace = "cloud_space"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
+	// EdgeLoginRecords holds the string denoting the login_records edge name in mutations.
+	EdgeLoginRecords = "login_records"
 	// EdgeVxSocials holds the string denoting the vx_socials edge name in mutations.
 	EdgeVxSocials = "vx_socials"
 	// EdgeParent holds the string denoting the parent edge name in mutations.
@@ -59,6 +61,13 @@ const (
 	EdgeChildren = "children"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// LoginRecordsTable is the table that holds the login_records relation/edge.
+	LoginRecordsTable = "login_records"
+	// LoginRecordsInverseTable is the table name for the LoginRecord entity.
+	// It exists in this package in order to avoid circular dependency with the "loginrecord" package.
+	LoginRecordsInverseTable = "login_records"
+	// LoginRecordsColumn is the table column denoting the login_records relation/edge.
+	LoginRecordsColumn = "user_id"
 	// VxSocialsTable is the table that holds the vx_socials relation/edge.
 	VxSocialsTable = "vx_socials"
 	// VxSocialsInverseTable is the table name for the VXSocial entity.
@@ -274,6 +283,20 @@ func ByParentID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldParentID, opts...).ToFunc()
 }
 
+// ByLoginRecordsCount orders the results by login_records count.
+func ByLoginRecordsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newLoginRecordsStep(), opts...)
+	}
+}
+
+// ByLoginRecords orders the results by login_records terms.
+func ByLoginRecords(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newLoginRecordsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByVxSocialsCount orders the results by vx_socials count.
 func ByVxSocialsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -307,6 +330,13 @@ func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newChildrenStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newLoginRecordsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(LoginRecordsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, LoginRecordsTable, LoginRecordsColumn),
+	)
 }
 func newVxSocialsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

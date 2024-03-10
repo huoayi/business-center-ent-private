@@ -9,6 +9,41 @@ import (
 )
 
 var (
+	// LoginRecordsColumns holds the columns for the "login_records" table.
+	LoginRecordsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
+		{Name: "created_by", Type: field.TypeInt64, Comment: "创建者 ID", Default: 0},
+		{Name: "updated_by", Type: field.TypeInt64, Comment: "更新者 ID", Default: 0},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时刻，带时区"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时刻，带时区"},
+		{Name: "deleted_at", Type: field.TypeTime, Comment: "软删除时刻，带时区"},
+		{Name: "ua", Type: field.TypeString, Comment: "用户登录时的 user-agent", Default: ""},
+		{Name: "ip", Type: field.TypeString, Comment: "用户登录时的 ip 地址", Default: ""},
+		{Name: "way", Type: field.TypeString, Comment: "用户登录时的登录方式，比如手机号验证码等", Default: ""},
+		{Name: "user_id", Type: field.TypeInt64, Comment: "用户 id，外键关联用户", Default: 0},
+	}
+	// LoginRecordsTable holds the schema information for the "login_records" table.
+	LoginRecordsTable = &schema.Table{
+		Name:       "login_records",
+		Comment:    "登录记录，记录用户登录的一些信息",
+		Columns:    LoginRecordsColumns,
+		PrimaryKey: []*schema.Column{LoginRecordsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "login_records_users_login_records",
+				Columns:    []*schema.Column{LoginRecordsColumns[9]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "loginrecord_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{LoginRecordsColumns[9]},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
@@ -87,12 +122,15 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		LoginRecordsTable,
 		UsersTable,
 		VxSocialsTable,
 	}
 )
 
 func init() {
+	LoginRecordsTable.ForeignKeys[0].RefTable = UsersTable
+	LoginRecordsTable.Annotation = &entsql.Annotation{}
 	UsersTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.Annotation = &entsql.Annotation{}
 	VxSocialsTable.ForeignKeys[0].RefTable = UsersTable

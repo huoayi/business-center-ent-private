@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -281,6 +282,21 @@ func (uu *UserUpdate) SetNillableParentID(i *int64) *UserUpdate {
 	return uu
 }
 
+// AddLoginRecordIDs adds the "login_records" edge to the LoginRecord entity by IDs.
+func (uu *UserUpdate) AddLoginRecordIDs(ids ...int64) *UserUpdate {
+	uu.mutation.AddLoginRecordIDs(ids...)
+	return uu
+}
+
+// AddLoginRecords adds the "login_records" edges to the LoginRecord entity.
+func (uu *UserUpdate) AddLoginRecords(l ...*LoginRecord) *UserUpdate {
+	ids := make([]int64, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uu.AddLoginRecordIDs(ids...)
+}
+
 // AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
 func (uu *UserUpdate) AddVxSocialIDs(ids ...int64) *UserUpdate {
 	uu.mutation.AddVxSocialIDs(ids...)
@@ -319,6 +335,27 @@ func (uu *UserUpdate) AddChildren(u ...*User) *UserUpdate {
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearLoginRecords clears all "login_records" edges to the LoginRecord entity.
+func (uu *UserUpdate) ClearLoginRecords() *UserUpdate {
+	uu.mutation.ClearLoginRecords()
+	return uu
+}
+
+// RemoveLoginRecordIDs removes the "login_records" edge to LoginRecord entities by IDs.
+func (uu *UserUpdate) RemoveLoginRecordIDs(ids ...int64) *UserUpdate {
+	uu.mutation.RemoveLoginRecordIDs(ids...)
+	return uu
+}
+
+// RemoveLoginRecords removes "login_records" edges to LoginRecord entities.
+func (uu *UserUpdate) RemoveLoginRecords(l ...*LoginRecord) *UserUpdate {
+	ids := make([]int64, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uu.RemoveLoginRecordIDs(ids...)
 }
 
 // ClearVxSocials clears all "vx_socials" edges to the VXSocial entity.
@@ -492,6 +529,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.AddedCloudSpace(); ok {
 		_spec.AddField(user.FieldCloudSpace, field.TypeInt64, value)
+	}
+	if uu.mutation.LoginRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedLoginRecordsIDs(); len(nodes) > 0 && !uu.mutation.LoginRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.LoginRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if uu.mutation.VxSocialsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -885,6 +967,21 @@ func (uuo *UserUpdateOne) SetNillableParentID(i *int64) *UserUpdateOne {
 	return uuo
 }
 
+// AddLoginRecordIDs adds the "login_records" edge to the LoginRecord entity by IDs.
+func (uuo *UserUpdateOne) AddLoginRecordIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.AddLoginRecordIDs(ids...)
+	return uuo
+}
+
+// AddLoginRecords adds the "login_records" edges to the LoginRecord entity.
+func (uuo *UserUpdateOne) AddLoginRecords(l ...*LoginRecord) *UserUpdateOne {
+	ids := make([]int64, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uuo.AddLoginRecordIDs(ids...)
+}
+
 // AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
 func (uuo *UserUpdateOne) AddVxSocialIDs(ids ...int64) *UserUpdateOne {
 	uuo.mutation.AddVxSocialIDs(ids...)
@@ -923,6 +1020,27 @@ func (uuo *UserUpdateOne) AddChildren(u ...*User) *UserUpdateOne {
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearLoginRecords clears all "login_records" edges to the LoginRecord entity.
+func (uuo *UserUpdateOne) ClearLoginRecords() *UserUpdateOne {
+	uuo.mutation.ClearLoginRecords()
+	return uuo
+}
+
+// RemoveLoginRecordIDs removes the "login_records" edge to LoginRecord entities by IDs.
+func (uuo *UserUpdateOne) RemoveLoginRecordIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.RemoveLoginRecordIDs(ids...)
+	return uuo
+}
+
+// RemoveLoginRecords removes "login_records" edges to LoginRecord entities.
+func (uuo *UserUpdateOne) RemoveLoginRecords(l ...*LoginRecord) *UserUpdateOne {
+	ids := make([]int64, len(l))
+	for i := range l {
+		ids[i] = l[i].ID
+	}
+	return uuo.RemoveLoginRecordIDs(ids...)
 }
 
 // ClearVxSocials clears all "vx_socials" edges to the VXSocial entity.
@@ -1126,6 +1244,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.AddedCloudSpace(); ok {
 		_spec.AddField(user.FieldCloudSpace, field.TypeInt64, value)
+	}
+	if uuo.mutation.LoginRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedLoginRecordsIDs(); len(nodes) > 0 && !uuo.mutation.LoginRecordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.LoginRecordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.LoginRecordsTable,
+			Columns: []string{user.LoginRecordsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(loginrecord.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if uuo.mutation.VxSocialsCleared() {
 		edge := &sqlgraph.EdgeSpec{

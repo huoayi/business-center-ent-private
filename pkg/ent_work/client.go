@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
@@ -24,6 +25,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// LoginRecord is the client for interacting with the LoginRecord builders.
+	LoginRecord *LoginRecordClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 	// VXSocial is the client for interacting with the VXSocial builders.
@@ -39,6 +42,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.LoginRecord = NewLoginRecordClient(c.config)
 	c.User = NewUserClient(c.config)
 	c.VXSocial = NewVXSocialClient(c.config)
 }
@@ -131,10 +135,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		User:     NewUserClient(cfg),
-		VXSocial: NewVXSocialClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		LoginRecord: NewLoginRecordClient(cfg),
+		User:        NewUserClient(cfg),
+		VXSocial:    NewVXSocialClient(cfg),
 	}, nil
 }
 
@@ -152,17 +157,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		User:     NewUserClient(cfg),
-		VXSocial: NewVXSocialClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		LoginRecord: NewLoginRecordClient(cfg),
+		User:        NewUserClient(cfg),
+		VXSocial:    NewVXSocialClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		User.
+//		LoginRecord.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -184,6 +190,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.LoginRecord.Use(hooks...)
 	c.User.Use(hooks...)
 	c.VXSocial.Use(hooks...)
 }
@@ -191,6 +198,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.LoginRecord.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 	c.VXSocial.Intercept(interceptors...)
 }
@@ -198,12 +206,163 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *LoginRecordMutation:
+		return c.LoginRecord.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	case *VXSocialMutation:
 		return c.VXSocial.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent_work: unknown mutation type %T", m)
+	}
+}
+
+// LoginRecordClient is a client for the LoginRecord schema.
+type LoginRecordClient struct {
+	config
+}
+
+// NewLoginRecordClient returns a client for the LoginRecord from the given config.
+func NewLoginRecordClient(c config) *LoginRecordClient {
+	return &LoginRecordClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `loginrecord.Hooks(f(g(h())))`.
+func (c *LoginRecordClient) Use(hooks ...Hook) {
+	c.hooks.LoginRecord = append(c.hooks.LoginRecord, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `loginrecord.Intercept(f(g(h())))`.
+func (c *LoginRecordClient) Intercept(interceptors ...Interceptor) {
+	c.inters.LoginRecord = append(c.inters.LoginRecord, interceptors...)
+}
+
+// Create returns a builder for creating a LoginRecord entity.
+func (c *LoginRecordClient) Create() *LoginRecordCreate {
+	mutation := newLoginRecordMutation(c.config, OpCreate)
+	return &LoginRecordCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of LoginRecord entities.
+func (c *LoginRecordClient) CreateBulk(builders ...*LoginRecordCreate) *LoginRecordCreateBulk {
+	return &LoginRecordCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LoginRecordClient) MapCreateBulk(slice any, setFunc func(*LoginRecordCreate, int)) *LoginRecordCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LoginRecordCreateBulk{err: fmt.Errorf("calling to LoginRecordClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LoginRecordCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LoginRecordCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for LoginRecord.
+func (c *LoginRecordClient) Update() *LoginRecordUpdate {
+	mutation := newLoginRecordMutation(c.config, OpUpdate)
+	return &LoginRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LoginRecordClient) UpdateOne(lr *LoginRecord) *LoginRecordUpdateOne {
+	mutation := newLoginRecordMutation(c.config, OpUpdateOne, withLoginRecord(lr))
+	return &LoginRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *LoginRecordClient) UpdateOneID(id int64) *LoginRecordUpdateOne {
+	mutation := newLoginRecordMutation(c.config, OpUpdateOne, withLoginRecordID(id))
+	return &LoginRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for LoginRecord.
+func (c *LoginRecordClient) Delete() *LoginRecordDelete {
+	mutation := newLoginRecordMutation(c.config, OpDelete)
+	return &LoginRecordDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LoginRecordClient) DeleteOne(lr *LoginRecord) *LoginRecordDeleteOne {
+	return c.DeleteOneID(lr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *LoginRecordClient) DeleteOneID(id int64) *LoginRecordDeleteOne {
+	builder := c.Delete().Where(loginrecord.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &LoginRecordDeleteOne{builder}
+}
+
+// Query returns a query builder for LoginRecord.
+func (c *LoginRecordClient) Query() *LoginRecordQuery {
+	return &LoginRecordQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLoginRecord},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a LoginRecord entity by its id.
+func (c *LoginRecordClient) Get(ctx context.Context, id int64) (*LoginRecord, error) {
+	return c.Query().Where(loginrecord.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LoginRecordClient) GetX(ctx context.Context, id int64) *LoginRecord {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a LoginRecord.
+func (c *LoginRecordClient) QueryUser(lr *LoginRecord) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := lr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(loginrecord.Table, loginrecord.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, loginrecord.UserTable, loginrecord.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(lr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *LoginRecordClient) Hooks() []Hook {
+	return c.hooks.LoginRecord
+}
+
+// Interceptors returns the client interceptors.
+func (c *LoginRecordClient) Interceptors() []Interceptor {
+	return c.inters.LoginRecord
+}
+
+func (c *LoginRecordClient) mutate(ctx context.Context, m *LoginRecordMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LoginRecordCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LoginRecordUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LoginRecordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LoginRecordDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent_work: unknown LoginRecord mutation op: %q", m.Op())
 	}
 }
 
@@ -313,6 +472,22 @@ func (c *UserClient) GetX(ctx context.Context, id int64) *User {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryLoginRecords queries the login_records edge of a User.
+func (c *UserClient) QueryLoginRecords(u *User) *LoginRecordQuery {
+	query := (&LoginRecordClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(loginrecord.Table, loginrecord.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.LoginRecordsTable, user.LoginRecordsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryVxSocials queries the vx_socials edge of a User.
@@ -540,9 +715,9 @@ func (c *VXSocialClient) mutate(ctx context.Context, m *VXSocialMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		User, VXSocial []ent.Hook
+		LoginRecord, User, VXSocial []ent.Hook
 	}
 	inters struct {
-		User, VXSocial []ent.Interceptor
+		LoginRecord, User, VXSocial []ent.Interceptor
 	}
 )
