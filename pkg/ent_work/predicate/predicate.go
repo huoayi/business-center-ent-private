@@ -8,3 +8,6 @@ import (
 
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// VXSocial is the predicate function for vxsocial builders.
+type VXSocial func(*sql.Selector)

@@ -21,6 +21,18 @@ func (f UserFunc) Mutate(ctx context.Context, m ent_work.Mutation) (ent_work.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent_work.UserMutation", m)
 }
 
+// The VXSocialFunc type is an adapter to allow the use of ordinary
+// function as VXSocial mutator.
+type VXSocialFunc func(context.Context, *ent_work.VXSocialMutation) (ent_work.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f VXSocialFunc) Mutate(ctx context.Context, m ent_work.Mutation) (ent_work.Value, error) {
+	if mv, ok := m.(*ent_work.VXSocialMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent_work.VXSocialMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent_work.Mutation) bool
 

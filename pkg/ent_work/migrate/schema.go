@@ -29,6 +29,7 @@ var (
 		{Name: "area_code", Type: field.TypeString, Comment: "国家区号", Default: "+86"},
 		{Name: "email", Type: field.TypeString, Comment: "邮箱", Default: ""},
 		{Name: "cloud_space", Type: field.TypeInt64, Comment: "云盘空间", Default: 0},
+		{Name: "parent_id", Type: field.TypeInt64, Nullable: true, Comment: "邀请人用户 id", Default: 0},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -36,13 +37,64 @@ var (
 		Comment:    "用户表",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_users_children",
+				Columns:    []*schema.Column{UsersColumns[18]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
+	// VxSocialsColumns holds the columns for the "vx_socials" table.
+	VxSocialsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
+		{Name: "created_by", Type: field.TypeInt64, Comment: "创建者 ID", Default: 0},
+		{Name: "updated_by", Type: field.TypeInt64, Comment: "更新者 ID", Default: 0},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时刻，带时区"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时刻，带时区"},
+		{Name: "deleted_at", Type: field.TypeTime, Comment: "软删除时刻，带时区"},
+		{Name: "app_id", Type: field.TypeString, Comment: "微信应用 id", Default: ""},
+		{Name: "open_id", Type: field.TypeString, Comment: "微信身份源的 open_id", Default: ""},
+		{Name: "union_id", Type: field.TypeString, Comment: "微信身份源的 union_id", Default: ""},
+		{Name: "scope", Type: field.TypeEnum, Comment: "账户的权限级别，一般为 base", Enums: []string{"base"}, Default: "base"},
+		{Name: "session_key", Type: field.TypeString, Comment: "小程序专用的会话密钥，不可以返回给前端", Default: ""},
+		{Name: "access_token", Type: field.TypeString, Comment: "微信能力访问凭证", Default: ""},
+		{Name: "refresh_token", Type: field.TypeString, Comment: "刷新微信凭证的刷新凭证", Default: ""},
+		{Name: "user_id", Type: field.TypeInt64, Comment: "外键用户 id", Default: 0},
+	}
+	// VxSocialsTable holds the schema information for the "vx_socials" table.
+	VxSocialsTable = &schema.Table{
+		Name:       "vx_socials",
+		Comment:    "微信社会源信息，记录用户在微信方的身份信息",
+		Columns:    VxSocialsColumns,
+		PrimaryKey: []*schema.Column{VxSocialsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "vx_socials_users_vx_socials",
+				Columns:    []*schema.Column{VxSocialsColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "vxsocial_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{VxSocialsColumns[13]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		UsersTable,
+		VxSocialsTable,
 	}
 )
 
 func init() {
+	UsersTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.Annotation = &entsql.Annotation{}
+	VxSocialsTable.ForeignKeys[0].RefTable = UsersTable
+	VxSocialsTable.Annotation = &entsql.Annotation{}
 }

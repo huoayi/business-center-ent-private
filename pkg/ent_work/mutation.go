@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
 
 const (
@@ -24,39 +25,48 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeUser = "User"
+	TypeUser     = "User"
+	TypeVXSocial = "VXSocial"
 )
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *int64
-	created_by     *int64
-	addcreated_by  *int64
-	updated_by     *int64
-	addupdated_by  *int64
-	created_at     *time.Time
-	updated_at     *time.Time
-	deleted_at     *time.Time
-	name           *string
-	nick_name      *string
-	jpg_url        *string
-	phone          *string
-	password       *string
-	is_frozen      *bool
-	is_recharge    *bool
-	user_type      *user.UserType
-	pop_version    *string
-	area_code      *string
-	email          *string
-	cloud_space    *int64
-	addcloud_space *int64
-	clearedFields  map[string]struct{}
-	done           bool
-	oldValue       func(context.Context) (*User, error)
-	predicates     []predicate.User
+	op                Op
+	typ               string
+	id                *int64
+	created_by        *int64
+	addcreated_by     *int64
+	updated_by        *int64
+	addupdated_by     *int64
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted_at        *time.Time
+	name              *string
+	nick_name         *string
+	jpg_url           *string
+	phone             *string
+	password          *string
+	is_frozen         *bool
+	is_recharge       *bool
+	user_type         *user.UserType
+	pop_version       *string
+	area_code         *string
+	email             *string
+	cloud_space       *int64
+	addcloud_space    *int64
+	clearedFields     map[string]struct{}
+	vx_socials        map[int64]struct{}
+	removedvx_socials map[int64]struct{}
+	clearedvx_socials bool
+	parent            *int64
+	clearedparent     bool
+	children          map[int64]struct{}
+	removedchildren   map[int64]struct{}
+	clearedchildren   bool
+	done              bool
+	oldValue          func(context.Context) (*User, error)
+	predicates        []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -835,6 +845,177 @@ func (m *UserMutation) ResetCloudSpace() {
 	m.addcloud_space = nil
 }
 
+// SetParentID sets the "parent_id" field.
+func (m *UserMutation) SetParentID(i int64) {
+	m.parent = &i
+}
+
+// ParentID returns the value of the "parent_id" field in the mutation.
+func (m *UserMutation) ParentID() (r int64, exists bool) {
+	v := m.parent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldParentID returns the old "parent_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldParentID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldParentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldParentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldParentID: %w", err)
+	}
+	return oldValue.ParentID, nil
+}
+
+// ResetParentID resets all changes to the "parent_id" field.
+func (m *UserMutation) ResetParentID() {
+	m.parent = nil
+}
+
+// AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by ids.
+func (m *UserMutation) AddVxSocialIDs(ids ...int64) {
+	if m.vx_socials == nil {
+		m.vx_socials = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.vx_socials[ids[i]] = struct{}{}
+	}
+}
+
+// ClearVxSocials clears the "vx_socials" edge to the VXSocial entity.
+func (m *UserMutation) ClearVxSocials() {
+	m.clearedvx_socials = true
+}
+
+// VxSocialsCleared reports if the "vx_socials" edge to the VXSocial entity was cleared.
+func (m *UserMutation) VxSocialsCleared() bool {
+	return m.clearedvx_socials
+}
+
+// RemoveVxSocialIDs removes the "vx_socials" edge to the VXSocial entity by IDs.
+func (m *UserMutation) RemoveVxSocialIDs(ids ...int64) {
+	if m.removedvx_socials == nil {
+		m.removedvx_socials = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.vx_socials, ids[i])
+		m.removedvx_socials[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedVxSocials returns the removed IDs of the "vx_socials" edge to the VXSocial entity.
+func (m *UserMutation) RemovedVxSocialsIDs() (ids []int64) {
+	for id := range m.removedvx_socials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// VxSocialsIDs returns the "vx_socials" edge IDs in the mutation.
+func (m *UserMutation) VxSocialsIDs() (ids []int64) {
+	for id := range m.vx_socials {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetVxSocials resets all changes to the "vx_socials" edge.
+func (m *UserMutation) ResetVxSocials() {
+	m.vx_socials = nil
+	m.clearedvx_socials = false
+	m.removedvx_socials = nil
+}
+
+// ClearParent clears the "parent" edge to the User entity.
+func (m *UserMutation) ClearParent() {
+	m.clearedparent = true
+	m.clearedFields[user.FieldParentID] = struct{}{}
+}
+
+// ParentCleared reports if the "parent" edge to the User entity was cleared.
+func (m *UserMutation) ParentCleared() bool {
+	return m.clearedparent
+}
+
+// ParentIDs returns the "parent" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ParentID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) ParentIDs() (ids []int64) {
+	if id := m.parent; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetParent resets all changes to the "parent" edge.
+func (m *UserMutation) ResetParent() {
+	m.parent = nil
+	m.clearedparent = false
+}
+
+// AddChildIDs adds the "children" edge to the User entity by ids.
+func (m *UserMutation) AddChildIDs(ids ...int64) {
+	if m.children == nil {
+		m.children = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.children[ids[i]] = struct{}{}
+	}
+}
+
+// ClearChildren clears the "children" edge to the User entity.
+func (m *UserMutation) ClearChildren() {
+	m.clearedchildren = true
+}
+
+// ChildrenCleared reports if the "children" edge to the User entity was cleared.
+func (m *UserMutation) ChildrenCleared() bool {
+	return m.clearedchildren
+}
+
+// RemoveChildIDs removes the "children" edge to the User entity by IDs.
+func (m *UserMutation) RemoveChildIDs(ids ...int64) {
+	if m.removedchildren == nil {
+		m.removedchildren = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.children, ids[i])
+		m.removedchildren[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedChildren returns the removed IDs of the "children" edge to the User entity.
+func (m *UserMutation) RemovedChildrenIDs() (ids []int64) {
+	for id := range m.removedchildren {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ChildrenIDs returns the "children" edge IDs in the mutation.
+func (m *UserMutation) ChildrenIDs() (ids []int64) {
+	for id := range m.children {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetChildren resets all changes to the "children" edge.
+func (m *UserMutation) ResetChildren() {
+	m.children = nil
+	m.clearedchildren = false
+	m.removedchildren = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -869,7 +1050,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.created_by != nil {
 		fields = append(fields, user.FieldCreatedBy)
 	}
@@ -921,6 +1102,9 @@ func (m *UserMutation) Fields() []string {
 	if m.cloud_space != nil {
 		fields = append(fields, user.FieldCloudSpace)
 	}
+	if m.parent != nil {
+		fields = append(fields, user.FieldParentID)
+	}
 	return fields
 }
 
@@ -963,6 +1147,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldCloudSpace:
 		return m.CloudSpace()
+	case user.FieldParentID:
+		return m.ParentID()
 	}
 	return nil, false
 }
@@ -1006,6 +1192,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldCloudSpace:
 		return m.OldCloudSpace(ctx)
+	case user.FieldParentID:
+		return m.OldParentID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1133,6 +1321,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCloudSpace(v)
+		return nil
+	case user.FieldParentID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetParentID(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1273,54 +1468,1240 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldCloudSpace:
 		m.ResetCloudSpace()
 		return nil
+	case user.FieldParentID:
+		m.ResetParentID()
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 3)
+	if m.vx_socials != nil {
+		edges = append(edges, user.EdgeVxSocials)
+	}
+	if m.parent != nil {
+		edges = append(edges, user.EdgeParent)
+	}
+	if m.children != nil {
+		edges = append(edges, user.EdgeChildren)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeVxSocials:
+		ids := make([]ent.Value, 0, len(m.vx_socials))
+		for id := range m.vx_socials {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeParent:
+		if id := m.parent; id != nil {
+			return []ent.Value{*id}
+		}
+	case user.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.children))
+		for id := range m.children {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 3)
+	if m.removedvx_socials != nil {
+		edges = append(edges, user.EdgeVxSocials)
+	}
+	if m.removedchildren != nil {
+		edges = append(edges, user.EdgeChildren)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *UserMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case user.EdgeVxSocials:
+		ids := make([]ent.Value, 0, len(m.removedvx_socials))
+		for id := range m.removedvx_socials {
+			ids = append(ids, id)
+		}
+		return ids
+	case user.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.removedchildren))
+		for id := range m.removedchildren {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 3)
+	if m.clearedvx_socials {
+		edges = append(edges, user.EdgeVxSocials)
+	}
+	if m.clearedparent {
+		edges = append(edges, user.EdgeParent)
+	}
+	if m.clearedchildren {
+		edges = append(edges, user.EdgeChildren)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
+	switch name {
+	case user.EdgeVxSocials:
+		return m.clearedvx_socials
+	case user.EdgeParent:
+		return m.clearedparent
+	case user.EdgeChildren:
+		return m.clearedchildren
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
+	switch name {
+	case user.EdgeParent:
+		m.ClearParent()
+		return nil
+	}
 	return fmt.Errorf("unknown User unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
+	switch name {
+	case user.EdgeVxSocials:
+		m.ResetVxSocials()
+		return nil
+	case user.EdgeParent:
+		m.ResetParent()
+		return nil
+	case user.EdgeChildren:
+		m.ResetChildren()
+		return nil
+	}
 	return fmt.Errorf("unknown User edge %s", name)
+}
+
+// VXSocialMutation represents an operation that mutates the VXSocial nodes in the graph.
+type VXSocialMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int64
+	created_by    *int64
+	addcreated_by *int64
+	updated_by    *int64
+	addupdated_by *int64
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
+	app_id        *string
+	open_id       *string
+	union_id      *string
+	scope         *vxsocial.Scope
+	session_key   *string
+	access_token  *string
+	refresh_token *string
+	clearedFields map[string]struct{}
+	user          *int64
+	cleareduser   bool
+	done          bool
+	oldValue      func(context.Context) (*VXSocial, error)
+	predicates    []predicate.VXSocial
+}
+
+var _ ent.Mutation = (*VXSocialMutation)(nil)
+
+// vxsocialOption allows management of the mutation configuration using functional options.
+type vxsocialOption func(*VXSocialMutation)
+
+// newVXSocialMutation creates new mutation for the VXSocial entity.
+func newVXSocialMutation(c config, op Op, opts ...vxsocialOption) *VXSocialMutation {
+	m := &VXSocialMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeVXSocial,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withVXSocialID sets the ID field of the mutation.
+func withVXSocialID(id int64) vxsocialOption {
+	return func(m *VXSocialMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *VXSocial
+		)
+		m.oldValue = func(ctx context.Context) (*VXSocial, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().VXSocial.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withVXSocial sets the old VXSocial of the mutation.
+func withVXSocial(node *VXSocial) vxsocialOption {
+	return func(m *VXSocialMutation) {
+		m.oldValue = func(context.Context) (*VXSocial, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m VXSocialMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m VXSocialMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent_work: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of VXSocial entities.
+func (m *VXSocialMutation) SetID(id int64) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *VXSocialMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *VXSocialMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().VXSocial.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (m *VXSocialMutation) SetCreatedBy(i int64) {
+	m.created_by = &i
+	m.addcreated_by = nil
+}
+
+// CreatedBy returns the value of the "created_by" field in the mutation.
+func (m *VXSocialMutation) CreatedBy() (r int64, exists bool) {
+	v := m.created_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedBy returns the old "created_by" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldCreatedBy(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedBy: %w", err)
+	}
+	return oldValue.CreatedBy, nil
+}
+
+// AddCreatedBy adds i to the "created_by" field.
+func (m *VXSocialMutation) AddCreatedBy(i int64) {
+	if m.addcreated_by != nil {
+		*m.addcreated_by += i
+	} else {
+		m.addcreated_by = &i
+	}
+}
+
+// AddedCreatedBy returns the value that was added to the "created_by" field in this mutation.
+func (m *VXSocialMutation) AddedCreatedBy() (r int64, exists bool) {
+	v := m.addcreated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCreatedBy resets all changes to the "created_by" field.
+func (m *VXSocialMutation) ResetCreatedBy() {
+	m.created_by = nil
+	m.addcreated_by = nil
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *VXSocialMutation) SetUpdatedBy(i int64) {
+	m.updated_by = &i
+	m.addupdated_by = nil
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *VXSocialMutation) UpdatedBy() (r int64, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldUpdatedBy(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// AddUpdatedBy adds i to the "updated_by" field.
+func (m *VXSocialMutation) AddUpdatedBy(i int64) {
+	if m.addupdated_by != nil {
+		*m.addupdated_by += i
+	} else {
+		m.addupdated_by = &i
+	}
+}
+
+// AddedUpdatedBy returns the value that was added to the "updated_by" field in this mutation.
+func (m *VXSocialMutation) AddedUpdatedBy() (r int64, exists bool) {
+	v := m.addupdated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *VXSocialMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	m.addupdated_by = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *VXSocialMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *VXSocialMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *VXSocialMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *VXSocialMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *VXSocialMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *VXSocialMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *VXSocialMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *VXSocialMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *VXSocialMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+}
+
+// SetAppID sets the "app_id" field.
+func (m *VXSocialMutation) SetAppID(s string) {
+	m.app_id = &s
+}
+
+// AppID returns the value of the "app_id" field in the mutation.
+func (m *VXSocialMutation) AppID() (r string, exists bool) {
+	v := m.app_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppID returns the old "app_id" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldAppID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppID: %w", err)
+	}
+	return oldValue.AppID, nil
+}
+
+// ResetAppID resets all changes to the "app_id" field.
+func (m *VXSocialMutation) ResetAppID() {
+	m.app_id = nil
+}
+
+// SetOpenID sets the "open_id" field.
+func (m *VXSocialMutation) SetOpenID(s string) {
+	m.open_id = &s
+}
+
+// OpenID returns the value of the "open_id" field in the mutation.
+func (m *VXSocialMutation) OpenID() (r string, exists bool) {
+	v := m.open_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOpenID returns the old "open_id" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldOpenID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOpenID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOpenID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOpenID: %w", err)
+	}
+	return oldValue.OpenID, nil
+}
+
+// ResetOpenID resets all changes to the "open_id" field.
+func (m *VXSocialMutation) ResetOpenID() {
+	m.open_id = nil
+}
+
+// SetUnionID sets the "union_id" field.
+func (m *VXSocialMutation) SetUnionID(s string) {
+	m.union_id = &s
+}
+
+// UnionID returns the value of the "union_id" field in the mutation.
+func (m *VXSocialMutation) UnionID() (r string, exists bool) {
+	v := m.union_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUnionID returns the old "union_id" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldUnionID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUnionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUnionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUnionID: %w", err)
+	}
+	return oldValue.UnionID, nil
+}
+
+// ResetUnionID resets all changes to the "union_id" field.
+func (m *VXSocialMutation) ResetUnionID() {
+	m.union_id = nil
+}
+
+// SetScope sets the "scope" field.
+func (m *VXSocialMutation) SetScope(v vxsocial.Scope) {
+	m.scope = &v
+}
+
+// Scope returns the value of the "scope" field in the mutation.
+func (m *VXSocialMutation) Scope() (r vxsocial.Scope, exists bool) {
+	v := m.scope
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldScope returns the old "scope" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldScope(ctx context.Context) (v vxsocial.Scope, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldScope is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldScope requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldScope: %w", err)
+	}
+	return oldValue.Scope, nil
+}
+
+// ResetScope resets all changes to the "scope" field.
+func (m *VXSocialMutation) ResetScope() {
+	m.scope = nil
+}
+
+// SetSessionKey sets the "session_key" field.
+func (m *VXSocialMutation) SetSessionKey(s string) {
+	m.session_key = &s
+}
+
+// SessionKey returns the value of the "session_key" field in the mutation.
+func (m *VXSocialMutation) SessionKey() (r string, exists bool) {
+	v := m.session_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSessionKey returns the old "session_key" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldSessionKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSessionKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSessionKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSessionKey: %w", err)
+	}
+	return oldValue.SessionKey, nil
+}
+
+// ResetSessionKey resets all changes to the "session_key" field.
+func (m *VXSocialMutation) ResetSessionKey() {
+	m.session_key = nil
+}
+
+// SetAccessToken sets the "access_token" field.
+func (m *VXSocialMutation) SetAccessToken(s string) {
+	m.access_token = &s
+}
+
+// AccessToken returns the value of the "access_token" field in the mutation.
+func (m *VXSocialMutation) AccessToken() (r string, exists bool) {
+	v := m.access_token
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccessToken returns the old "access_token" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldAccessToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccessToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccessToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccessToken: %w", err)
+	}
+	return oldValue.AccessToken, nil
+}
+
+// ResetAccessToken resets all changes to the "access_token" field.
+func (m *VXSocialMutation) ResetAccessToken() {
+	m.access_token = nil
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (m *VXSocialMutation) SetRefreshToken(s string) {
+	m.refresh_token = &s
+}
+
+// RefreshToken returns the value of the "refresh_token" field in the mutation.
+func (m *VXSocialMutation) RefreshToken() (r string, exists bool) {
+	v := m.refresh_token
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRefreshToken returns the old "refresh_token" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldRefreshToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRefreshToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRefreshToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefreshToken: %w", err)
+	}
+	return oldValue.RefreshToken, nil
+}
+
+// ResetRefreshToken resets all changes to the "refresh_token" field.
+func (m *VXSocialMutation) ResetRefreshToken() {
+	m.refresh_token = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *VXSocialMutation) SetUserID(i int64) {
+	m.user = &i
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *VXSocialMutation) UserID() (r int64, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the VXSocial entity.
+// If the VXSocial object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *VXSocialMutation) OldUserID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *VXSocialMutation) ResetUserID() {
+	m.user = nil
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *VXSocialMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[vxsocial.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *VXSocialMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *VXSocialMutation) UserIDs() (ids []int64) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *VXSocialMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the VXSocialMutation builder.
+func (m *VXSocialMutation) Where(ps ...predicate.VXSocial) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the VXSocialMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *VXSocialMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.VXSocial, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *VXSocialMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *VXSocialMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (VXSocial).
+func (m *VXSocialMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *VXSocialMutation) Fields() []string {
+	fields := make([]string, 0, 13)
+	if m.created_by != nil {
+		fields = append(fields, vxsocial.FieldCreatedBy)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, vxsocial.FieldUpdatedBy)
+	}
+	if m.created_at != nil {
+		fields = append(fields, vxsocial.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, vxsocial.FieldUpdatedAt)
+	}
+	if m.deleted_at != nil {
+		fields = append(fields, vxsocial.FieldDeletedAt)
+	}
+	if m.app_id != nil {
+		fields = append(fields, vxsocial.FieldAppID)
+	}
+	if m.open_id != nil {
+		fields = append(fields, vxsocial.FieldOpenID)
+	}
+	if m.union_id != nil {
+		fields = append(fields, vxsocial.FieldUnionID)
+	}
+	if m.scope != nil {
+		fields = append(fields, vxsocial.FieldScope)
+	}
+	if m.session_key != nil {
+		fields = append(fields, vxsocial.FieldSessionKey)
+	}
+	if m.access_token != nil {
+		fields = append(fields, vxsocial.FieldAccessToken)
+	}
+	if m.refresh_token != nil {
+		fields = append(fields, vxsocial.FieldRefreshToken)
+	}
+	if m.user != nil {
+		fields = append(fields, vxsocial.FieldUserID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *VXSocialMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		return m.CreatedBy()
+	case vxsocial.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case vxsocial.FieldCreatedAt:
+		return m.CreatedAt()
+	case vxsocial.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case vxsocial.FieldDeletedAt:
+		return m.DeletedAt()
+	case vxsocial.FieldAppID:
+		return m.AppID()
+	case vxsocial.FieldOpenID:
+		return m.OpenID()
+	case vxsocial.FieldUnionID:
+		return m.UnionID()
+	case vxsocial.FieldScope:
+		return m.Scope()
+	case vxsocial.FieldSessionKey:
+		return m.SessionKey()
+	case vxsocial.FieldAccessToken:
+		return m.AccessToken()
+	case vxsocial.FieldRefreshToken:
+		return m.RefreshToken()
+	case vxsocial.FieldUserID:
+		return m.UserID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *VXSocialMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		return m.OldCreatedBy(ctx)
+	case vxsocial.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case vxsocial.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case vxsocial.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case vxsocial.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case vxsocial.FieldAppID:
+		return m.OldAppID(ctx)
+	case vxsocial.FieldOpenID:
+		return m.OldOpenID(ctx)
+	case vxsocial.FieldUnionID:
+		return m.OldUnionID(ctx)
+	case vxsocial.FieldScope:
+		return m.OldScope(ctx)
+	case vxsocial.FieldSessionKey:
+		return m.OldSessionKey(ctx)
+	case vxsocial.FieldAccessToken:
+		return m.OldAccessToken(ctx)
+	case vxsocial.FieldRefreshToken:
+		return m.OldRefreshToken(ctx)
+	case vxsocial.FieldUserID:
+		return m.OldUserID(ctx)
+	}
+	return nil, fmt.Errorf("unknown VXSocial field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *VXSocialMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedBy(v)
+		return nil
+	case vxsocial.FieldUpdatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case vxsocial.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case vxsocial.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case vxsocial.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case vxsocial.FieldAppID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppID(v)
+		return nil
+	case vxsocial.FieldOpenID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOpenID(v)
+		return nil
+	case vxsocial.FieldUnionID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUnionID(v)
+		return nil
+	case vxsocial.FieldScope:
+		v, ok := value.(vxsocial.Scope)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetScope(v)
+		return nil
+	case vxsocial.FieldSessionKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSessionKey(v)
+		return nil
+	case vxsocial.FieldAccessToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccessToken(v)
+		return nil
+	case vxsocial.FieldRefreshToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRefreshToken(v)
+		return nil
+	case vxsocial.FieldUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown VXSocial field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *VXSocialMutation) AddedFields() []string {
+	var fields []string
+	if m.addcreated_by != nil {
+		fields = append(fields, vxsocial.FieldCreatedBy)
+	}
+	if m.addupdated_by != nil {
+		fields = append(fields, vxsocial.FieldUpdatedBy)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *VXSocialMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		return m.AddedCreatedBy()
+	case vxsocial.FieldUpdatedBy:
+		return m.AddedUpdatedBy()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *VXSocialMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCreatedBy(v)
+		return nil
+	case vxsocial.FieldUpdatedBy:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUpdatedBy(v)
+		return nil
+	}
+	return fmt.Errorf("unknown VXSocial numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *VXSocialMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *VXSocialMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *VXSocialMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown VXSocial nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *VXSocialMutation) ResetField(name string) error {
+	switch name {
+	case vxsocial.FieldCreatedBy:
+		m.ResetCreatedBy()
+		return nil
+	case vxsocial.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case vxsocial.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case vxsocial.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case vxsocial.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case vxsocial.FieldAppID:
+		m.ResetAppID()
+		return nil
+	case vxsocial.FieldOpenID:
+		m.ResetOpenID()
+		return nil
+	case vxsocial.FieldUnionID:
+		m.ResetUnionID()
+		return nil
+	case vxsocial.FieldScope:
+		m.ResetScope()
+		return nil
+	case vxsocial.FieldSessionKey:
+		m.ResetSessionKey()
+		return nil
+	case vxsocial.FieldAccessToken:
+		m.ResetAccessToken()
+		return nil
+	case vxsocial.FieldRefreshToken:
+		m.ResetRefreshToken()
+		return nil
+	case vxsocial.FieldUserID:
+		m.ResetUserID()
+		return nil
+	}
+	return fmt.Errorf("unknown VXSocial field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *VXSocialMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.user != nil {
+		edges = append(edges, vxsocial.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *VXSocialMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case vxsocial.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *VXSocialMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *VXSocialMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *VXSocialMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.cleareduser {
+		edges = append(edges, vxsocial.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *VXSocialMutation) EdgeCleared(name string) bool {
+	switch name {
+	case vxsocial.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *VXSocialMutation) ClearEdge(name string) error {
+	switch name {
+	case vxsocial.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown VXSocial unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *VXSocialMutation) ResetEdge(name string) error {
+	switch name {
+	case vxsocial.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown VXSocial edge %s", name)
 }

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -260,6 +261,20 @@ func (uc *UserCreate) SetNillableCloudSpace(i *int64) *UserCreate {
 	return uc
 }
 
+// SetParentID sets the "parent_id" field.
+func (uc *UserCreate) SetParentID(i int64) *UserCreate {
+	uc.mutation.SetParentID(i)
+	return uc
+}
+
+// SetNillableParentID sets the "parent_id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableParentID(i *int64) *UserCreate {
+	if i != nil {
+		uc.SetParentID(*i)
+	}
+	return uc
+}
+
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(i int64) *UserCreate {
 	uc.mutation.SetID(i)
@@ -272,6 +287,41 @@ func (uc *UserCreate) SetNillableID(i *int64) *UserCreate {
 		uc.SetID(*i)
 	}
 	return uc
+}
+
+// AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
+func (uc *UserCreate) AddVxSocialIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddVxSocialIDs(ids...)
+	return uc
+}
+
+// AddVxSocials adds the "vx_socials" edges to the VXSocial entity.
+func (uc *UserCreate) AddVxSocials(v ...*VXSocial) *UserCreate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uc.AddVxSocialIDs(ids...)
+}
+
+// SetParent sets the "parent" edge to the User entity.
+func (uc *UserCreate) SetParent(u *User) *UserCreate {
+	return uc.SetParentID(u.ID)
+}
+
+// AddChildIDs adds the "children" edge to the User entity by IDs.
+func (uc *UserCreate) AddChildIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddChildIDs(ids...)
+	return uc
+}
+
+// AddChildren adds the "children" edges to the User entity.
+func (uc *UserCreate) AddChildren(u ...*User) *UserCreate {
+	ids := make([]int64, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uc.AddChildIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -377,6 +427,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultCloudSpace
 		uc.mutation.SetCloudSpace(v)
 	}
+	if _, ok := uc.mutation.ParentID(); !ok {
+		v := user.DefaultParentID
+		uc.mutation.SetParentID(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -440,6 +494,12 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.CloudSpace(); !ok {
 		return &ValidationError{Name: "cloud_space", err: errors.New(`ent_work: missing required field "User.cloud_space"`)}
+	}
+	if _, ok := uc.mutation.ParentID(); !ok {
+		return &ValidationError{Name: "parent_id", err: errors.New(`ent_work: missing required field "User.parent_id"`)}
+	}
+	if _, ok := uc.mutation.ParentID(); !ok {
+		return &ValidationError{Name: "parent", err: errors.New(`ent_work: missing required edge "User.parent"`)}
 	}
 	return nil
 }
@@ -541,6 +601,55 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.CloudSpace(); ok {
 		_spec.SetField(user.FieldCloudSpace, field.TypeInt64, value)
 		_node.CloudSpace = value
+	}
+	if nodes := uc.mutation.VxSocialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ParentTable,
+			Columns: []string{user.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ParentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -801,6 +910,18 @@ func (u *UserUpsert) UpdateCloudSpace() *UserUpsert {
 // AddCloudSpace adds v to the "cloud_space" field.
 func (u *UserUpsert) AddCloudSpace(v int64) *UserUpsert {
 	u.Add(user.FieldCloudSpace, v)
+	return u
+}
+
+// SetParentID sets the "parent_id" field.
+func (u *UserUpsert) SetParentID(v int64) *UserUpsert {
+	u.Set(user.FieldParentID, v)
+	return u
+}
+
+// UpdateParentID sets the "parent_id" field to the value that was provided on create.
+func (u *UserUpsert) UpdateParentID() *UserUpsert {
+	u.SetExcluded(user.FieldParentID)
 	return u
 }
 
@@ -1097,6 +1218,20 @@ func (u *UserUpsertOne) AddCloudSpace(v int64) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateCloudSpace() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateCloudSpace()
+	})
+}
+
+// SetParentID sets the "parent_id" field.
+func (u *UserUpsertOne) SetParentID(v int64) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetParentID(v)
+	})
+}
+
+// UpdateParentID sets the "parent_id" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateParentID() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateParentID()
 	})
 }
 
@@ -1559,6 +1694,20 @@ func (u *UserUpsertBulk) AddCloudSpace(v int64) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateCloudSpace() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateCloudSpace()
+	})
+}
+
+// SetParentID sets the "parent_id" field.
+func (u *UserUpsertBulk) SetParentID(v int64) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetParentID(v)
+	})
+}
+
+// UpdateParentID sets the "parent_id" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateParentID() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateParentID()
 	})
 }
 

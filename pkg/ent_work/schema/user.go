@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -26,12 +27,20 @@ func (User) Fields() []ent.Field {
 		field.String("area_code").Default("+86").StructTag(`json:"area_code"`).Comment("国家区号"),
 		field.String("email").Default("").StructTag(`json:"email"'`).Comment("邮箱"),
 		field.Int64("cloud_space").Default(0).StructTag(`json:"cloud_space"`).Comment("云盘空间"),
+		field.Int64("parent_id").Default(0).StructTag(`json:"parent_id,string"`).Comment("邀请人用户 id"),
 	}
 }
 
 // Indexes of User
 func (User) Indexes() []ent.Index {
 	return []ent.Index{}
+}
+
+func (User) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("vx_socials", VXSocial.Type),
+		edge.To("children", User.Type).From("parent").Unique().Required().Field("parent_id"),
+	}
 }
 
 // Mixin of User

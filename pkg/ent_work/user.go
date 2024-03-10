@@ -51,8 +51,55 @@ type User struct {
 	// 邮箱
 	Email string `json:"email"'`
 	// 云盘空间
-	CloudSpace   int64 `json:"cloud_space"`
+	CloudSpace int64 `json:"cloud_space"`
+	// 邀请人用户 id
+	ParentID int64 `json:"parent_id,string"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// VxSocials holds the value of the vx_socials edge.
+	VxSocials []*VXSocial `json:"vx_socials,omitempty"`
+	// Parent holds the value of the parent edge.
+	Parent *User `json:"parent,omitempty"`
+	// Children holds the value of the children edge.
+	Children []*User `json:"children,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [3]bool
+}
+
+// VxSocialsOrErr returns the VxSocials value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) VxSocialsOrErr() ([]*VXSocial, error) {
+	if e.loadedTypes[0] {
+		return e.VxSocials, nil
+	}
+	return nil, &NotLoadedError{edge: "vx_socials"}
+}
+
+// ParentOrErr returns the Parent value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) ParentOrErr() (*User, error) {
+	if e.Parent != nil {
+		return e.Parent, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "parent"}
+}
+
+// ChildrenOrErr returns the Children value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) ChildrenOrErr() ([]*User, error) {
+	if e.loadedTypes[2] {
+		return e.Children, nil
+	}
+	return nil, &NotLoadedError{edge: "children"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -62,7 +109,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldIsFrozen, user.FieldIsRecharge:
 			values[i] = new(sql.NullBool)
-		case user.FieldID, user.FieldCreatedBy, user.FieldUpdatedBy, user.FieldCloudSpace:
+		case user.FieldID, user.FieldCreatedBy, user.FieldUpdatedBy, user.FieldCloudSpace, user.FieldParentID:
 			values[i] = new(sql.NullInt64)
 		case user.FieldName, user.FieldNickName, user.FieldJpgURL, user.FieldPhone, user.FieldPassword, user.FieldUserType, user.FieldPopVersion, user.FieldAreaCode, user.FieldEmail:
 			values[i] = new(sql.NullString)
@@ -191,6 +238,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.CloudSpace = value.Int64
 			}
+		case user.FieldParentID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
+			} else if value.Valid {
+				u.ParentID = value.Int64
+			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -202,6 +255,21 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryVxSocials queries the "vx_socials" edge of the User entity.
+func (u *User) QueryVxSocials() *VXSocialQuery {
+	return NewUserClient(u.config).QueryVxSocials(u)
+}
+
+// QueryParent queries the "parent" edge of the User entity.
+func (u *User) QueryParent() *UserQuery {
+	return NewUserClient(u.config).QueryParent(u)
+}
+
+// QueryChildren queries the "children" edge of the User entity.
+func (u *User) QueryChildren() *UserQuery {
+	return NewUserClient(u.config).QueryChildren(u)
 }
 
 // Update returns a builder for updating this User.
@@ -276,6 +344,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("cloud_space=")
 	builder.WriteString(fmt.Sprintf("%v", u.CloudSpace))
+	builder.WriteString(", ")
+	builder.WriteString("parent_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.ParentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

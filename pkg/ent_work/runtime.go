@@ -7,6 +7,7 @@ import (
 
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/schema"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -84,8 +85,71 @@ func init() {
 	userDescCloudSpace := userFields[11].Descriptor()
 	// user.DefaultCloudSpace holds the default value on creation for the cloud_space field.
 	user.DefaultCloudSpace = userDescCloudSpace.Default.(int64)
+	// userDescParentID is the schema descriptor for parent_id field.
+	userDescParentID := userFields[12].Descriptor()
+	// user.DefaultParentID holds the default value on creation for the parent_id field.
+	user.DefaultParentID = userDescParentID.Default.(int64)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userMixinFields0[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.
 	user.DefaultID = userDescID.Default.(func() int64)
+	vxsocialMixin := schema.VXSocial{}.Mixin()
+	vxsocialMixinFields0 := vxsocialMixin[0].Fields()
+	_ = vxsocialMixinFields0
+	vxsocialFields := schema.VXSocial{}.Fields()
+	_ = vxsocialFields
+	// vxsocialDescCreatedBy is the schema descriptor for created_by field.
+	vxsocialDescCreatedBy := vxsocialMixinFields0[1].Descriptor()
+	// vxsocial.DefaultCreatedBy holds the default value on creation for the created_by field.
+	vxsocial.DefaultCreatedBy = vxsocialDescCreatedBy.Default.(int64)
+	// vxsocialDescUpdatedBy is the schema descriptor for updated_by field.
+	vxsocialDescUpdatedBy := vxsocialMixinFields0[2].Descriptor()
+	// vxsocial.DefaultUpdatedBy holds the default value on creation for the updated_by field.
+	vxsocial.DefaultUpdatedBy = vxsocialDescUpdatedBy.Default.(int64)
+	// vxsocialDescCreatedAt is the schema descriptor for created_at field.
+	vxsocialDescCreatedAt := vxsocialMixinFields0[3].Descriptor()
+	// vxsocial.DefaultCreatedAt holds the default value on creation for the created_at field.
+	vxsocial.DefaultCreatedAt = vxsocialDescCreatedAt.Default.(func() time.Time)
+	// vxsocialDescUpdatedAt is the schema descriptor for updated_at field.
+	vxsocialDescUpdatedAt := vxsocialMixinFields0[4].Descriptor()
+	// vxsocial.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	vxsocial.DefaultUpdatedAt = vxsocialDescUpdatedAt.Default.(func() time.Time)
+	// vxsocial.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	vxsocial.UpdateDefaultUpdatedAt = vxsocialDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// vxsocialDescDeletedAt is the schema descriptor for deleted_at field.
+	vxsocialDescDeletedAt := vxsocialMixinFields0[5].Descriptor()
+	// vxsocial.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	vxsocial.DefaultDeletedAt = vxsocialDescDeletedAt.Default.(time.Time)
+	// vxsocialDescAppID is the schema descriptor for app_id field.
+	vxsocialDescAppID := vxsocialFields[0].Descriptor()
+	// vxsocial.DefaultAppID holds the default value on creation for the app_id field.
+	vxsocial.DefaultAppID = vxsocialDescAppID.Default.(string)
+	// vxsocialDescOpenID is the schema descriptor for open_id field.
+	vxsocialDescOpenID := vxsocialFields[1].Descriptor()
+	// vxsocial.DefaultOpenID holds the default value on creation for the open_id field.
+	vxsocial.DefaultOpenID = vxsocialDescOpenID.Default.(string)
+	// vxsocialDescUnionID is the schema descriptor for union_id field.
+	vxsocialDescUnionID := vxsocialFields[2].Descriptor()
+	// vxsocial.DefaultUnionID holds the default value on creation for the union_id field.
+	vxsocial.DefaultUnionID = vxsocialDescUnionID.Default.(string)
+	// vxsocialDescSessionKey is the schema descriptor for session_key field.
+	vxsocialDescSessionKey := vxsocialFields[4].Descriptor()
+	// vxsocial.DefaultSessionKey holds the default value on creation for the session_key field.
+	vxsocial.DefaultSessionKey = vxsocialDescSessionKey.Default.(string)
+	// vxsocialDescAccessToken is the schema descriptor for access_token field.
+	vxsocialDescAccessToken := vxsocialFields[5].Descriptor()
+	// vxsocial.DefaultAccessToken holds the default value on creation for the access_token field.
+	vxsocial.DefaultAccessToken = vxsocialDescAccessToken.Default.(string)
+	// vxsocialDescRefreshToken is the schema descriptor for refresh_token field.
+	vxsocialDescRefreshToken := vxsocialFields[6].Descriptor()
+	// vxsocial.DefaultRefreshToken holds the default value on creation for the refresh_token field.
+	vxsocial.DefaultRefreshToken = vxsocialDescRefreshToken.Default.(string)
+	// vxsocialDescUserID is the schema descriptor for user_id field.
+	vxsocialDescUserID := vxsocialFields[7].Descriptor()
+	// vxsocial.DefaultUserID holds the default value on creation for the user_id field.
+	vxsocial.DefaultUserID = vxsocialDescUserID.Default.(int64)
+	// vxsocialDescID is the schema descriptor for id field.
+	vxsocialDescID := vxsocialMixinFields0[0].Descriptor()
+	// vxsocial.DefaultID holds the default value on creation for the id field.
+	vxsocial.DefaultID = vxsocialDescID.Default.(func() int64)
 }

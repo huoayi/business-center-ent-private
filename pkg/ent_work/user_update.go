@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -266,9 +267,106 @@ func (uu *UserUpdate) AddCloudSpace(i int64) *UserUpdate {
 	return uu
 }
 
+// SetParentID sets the "parent_id" field.
+func (uu *UserUpdate) SetParentID(i int64) *UserUpdate {
+	uu.mutation.SetParentID(i)
+	return uu
+}
+
+// SetNillableParentID sets the "parent_id" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableParentID(i *int64) *UserUpdate {
+	if i != nil {
+		uu.SetParentID(*i)
+	}
+	return uu
+}
+
+// AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
+func (uu *UserUpdate) AddVxSocialIDs(ids ...int64) *UserUpdate {
+	uu.mutation.AddVxSocialIDs(ids...)
+	return uu
+}
+
+// AddVxSocials adds the "vx_socials" edges to the VXSocial entity.
+func (uu *UserUpdate) AddVxSocials(v ...*VXSocial) *UserUpdate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uu.AddVxSocialIDs(ids...)
+}
+
+// SetParent sets the "parent" edge to the User entity.
+func (uu *UserUpdate) SetParent(u *User) *UserUpdate {
+	return uu.SetParentID(u.ID)
+}
+
+// AddChildIDs adds the "children" edge to the User entity by IDs.
+func (uu *UserUpdate) AddChildIDs(ids ...int64) *UserUpdate {
+	uu.mutation.AddChildIDs(ids...)
+	return uu
+}
+
+// AddChildren adds the "children" edges to the User entity.
+func (uu *UserUpdate) AddChildren(u ...*User) *UserUpdate {
+	ids := make([]int64, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uu.AddChildIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearVxSocials clears all "vx_socials" edges to the VXSocial entity.
+func (uu *UserUpdate) ClearVxSocials() *UserUpdate {
+	uu.mutation.ClearVxSocials()
+	return uu
+}
+
+// RemoveVxSocialIDs removes the "vx_socials" edge to VXSocial entities by IDs.
+func (uu *UserUpdate) RemoveVxSocialIDs(ids ...int64) *UserUpdate {
+	uu.mutation.RemoveVxSocialIDs(ids...)
+	return uu
+}
+
+// RemoveVxSocials removes "vx_socials" edges to VXSocial entities.
+func (uu *UserUpdate) RemoveVxSocials(v ...*VXSocial) *UserUpdate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uu.RemoveVxSocialIDs(ids...)
+}
+
+// ClearParent clears the "parent" edge to the User entity.
+func (uu *UserUpdate) ClearParent() *UserUpdate {
+	uu.mutation.ClearParent()
+	return uu
+}
+
+// ClearChildren clears all "children" edges to the User entity.
+func (uu *UserUpdate) ClearChildren() *UserUpdate {
+	uu.mutation.ClearChildren()
+	return uu
+}
+
+// RemoveChildIDs removes the "children" edge to User entities by IDs.
+func (uu *UserUpdate) RemoveChildIDs(ids ...int64) *UserUpdate {
+	uu.mutation.RemoveChildIDs(ids...)
+	return uu
+}
+
+// RemoveChildren removes "children" edges to User entities.
+func (uu *UserUpdate) RemoveChildren(u ...*User) *UserUpdate {
+	ids := make([]int64, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uu.RemoveChildIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -313,6 +411,9 @@ func (uu *UserUpdate) check() error {
 		if err := user.UserTypeValidator(v); err != nil {
 			return &ValidationError{Name: "user_type", err: fmt.Errorf(`ent_work: validator failed for field "User.user_type": %w`, err)}
 		}
+	}
+	if _, ok := uu.mutation.ParentID(); uu.mutation.ParentCleared() && !ok {
+		return errors.New(`ent_work: clearing a required unique edge "User.parent"`)
 	}
 	return nil
 }
@@ -391,6 +492,125 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.AddedCloudSpace(); ok {
 		_spec.AddField(user.FieldCloudSpace, field.TypeInt64, value)
+	}
+	if uu.mutation.VxSocialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedVxSocialsIDs(); len(nodes) > 0 && !uu.mutation.VxSocialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.VxSocialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.ParentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ParentTable,
+			Columns: []string{user.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ParentTable,
+			Columns: []string{user.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !uu.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(uu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
@@ -651,9 +871,106 @@ func (uuo *UserUpdateOne) AddCloudSpace(i int64) *UserUpdateOne {
 	return uuo
 }
 
+// SetParentID sets the "parent_id" field.
+func (uuo *UserUpdateOne) SetParentID(i int64) *UserUpdateOne {
+	uuo.mutation.SetParentID(i)
+	return uuo
+}
+
+// SetNillableParentID sets the "parent_id" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableParentID(i *int64) *UserUpdateOne {
+	if i != nil {
+		uuo.SetParentID(*i)
+	}
+	return uuo
+}
+
+// AddVxSocialIDs adds the "vx_socials" edge to the VXSocial entity by IDs.
+func (uuo *UserUpdateOne) AddVxSocialIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.AddVxSocialIDs(ids...)
+	return uuo
+}
+
+// AddVxSocials adds the "vx_socials" edges to the VXSocial entity.
+func (uuo *UserUpdateOne) AddVxSocials(v ...*VXSocial) *UserUpdateOne {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uuo.AddVxSocialIDs(ids...)
+}
+
+// SetParent sets the "parent" edge to the User entity.
+func (uuo *UserUpdateOne) SetParent(u *User) *UserUpdateOne {
+	return uuo.SetParentID(u.ID)
+}
+
+// AddChildIDs adds the "children" edge to the User entity by IDs.
+func (uuo *UserUpdateOne) AddChildIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.AddChildIDs(ids...)
+	return uuo
+}
+
+// AddChildren adds the "children" edges to the User entity.
+func (uuo *UserUpdateOne) AddChildren(u ...*User) *UserUpdateOne {
+	ids := make([]int64, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uuo.AddChildIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearVxSocials clears all "vx_socials" edges to the VXSocial entity.
+func (uuo *UserUpdateOne) ClearVxSocials() *UserUpdateOne {
+	uuo.mutation.ClearVxSocials()
+	return uuo
+}
+
+// RemoveVxSocialIDs removes the "vx_socials" edge to VXSocial entities by IDs.
+func (uuo *UserUpdateOne) RemoveVxSocialIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.RemoveVxSocialIDs(ids...)
+	return uuo
+}
+
+// RemoveVxSocials removes "vx_socials" edges to VXSocial entities.
+func (uuo *UserUpdateOne) RemoveVxSocials(v ...*VXSocial) *UserUpdateOne {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return uuo.RemoveVxSocialIDs(ids...)
+}
+
+// ClearParent clears the "parent" edge to the User entity.
+func (uuo *UserUpdateOne) ClearParent() *UserUpdateOne {
+	uuo.mutation.ClearParent()
+	return uuo
+}
+
+// ClearChildren clears all "children" edges to the User entity.
+func (uuo *UserUpdateOne) ClearChildren() *UserUpdateOne {
+	uuo.mutation.ClearChildren()
+	return uuo
+}
+
+// RemoveChildIDs removes the "children" edge to User entities by IDs.
+func (uuo *UserUpdateOne) RemoveChildIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.RemoveChildIDs(ids...)
+	return uuo
+}
+
+// RemoveChildren removes "children" edges to User entities.
+func (uuo *UserUpdateOne) RemoveChildren(u ...*User) *UserUpdateOne {
+	ids := make([]int64, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uuo.RemoveChildIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -711,6 +1028,9 @@ func (uuo *UserUpdateOne) check() error {
 		if err := user.UserTypeValidator(v); err != nil {
 			return &ValidationError{Name: "user_type", err: fmt.Errorf(`ent_work: validator failed for field "User.user_type": %w`, err)}
 		}
+	}
+	if _, ok := uuo.mutation.ParentID(); uuo.mutation.ParentCleared() && !ok {
+		return errors.New(`ent_work: clearing a required unique edge "User.parent"`)
 	}
 	return nil
 }
@@ -806,6 +1126,125 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.AddedCloudSpace(); ok {
 		_spec.AddField(user.FieldCloudSpace, field.TypeInt64, value)
+	}
+	if uuo.mutation.VxSocialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedVxSocialsIDs(); len(nodes) > 0 && !uuo.mutation.VxSocialsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.VxSocialsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.VxSocialsTable,
+			Columns: []string{user.VxSocialsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(vxsocial.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.ParentCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ParentTable,
+			Columns: []string{user.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.ParentTable,
+			Columns: []string{user.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !uuo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.ChildrenTable,
+			Columns: []string{user.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(uuo.modifiers...)
 	_node = &User{config: uuo.config}
