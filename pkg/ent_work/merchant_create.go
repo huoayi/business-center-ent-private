@@ -14,6 +14,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // MerchantCreate is the builder for creating a Merchant entity.
@@ -164,6 +165,20 @@ func (mc *MerchantCreate) SetNillableUserID(i *int64) *MerchantCreate {
 	return mc
 }
 
+// SetProvence sets the "provence" field.
+func (mc *MerchantCreate) SetProvence(e enum.Provence) *MerchantCreate {
+	mc.mutation.SetProvence(e)
+	return mc
+}
+
+// SetNillableProvence sets the "provence" field if the given value is not nil.
+func (mc *MerchantCreate) SetNillableProvence(e *enum.Provence) *MerchantCreate {
+	if e != nil {
+		mc.SetProvence(*e)
+	}
+	return mc
+}
+
 // SetID sets the "id" field.
 func (mc *MerchantCreate) SetID(i int64) *MerchantCreate {
 	mc.mutation.SetID(i)
@@ -273,6 +288,10 @@ func (mc *MerchantCreate) defaults() {
 		v := merchant.DefaultUserID
 		mc.mutation.SetUserID(v)
 	}
+	if _, ok := mc.mutation.Provence(); !ok {
+		v := merchant.DefaultProvence
+		mc.mutation.SetProvence(v)
+	}
 	if _, ok := mc.mutation.ID(); !ok {
 		v := merchant.DefaultID()
 		mc.mutation.SetID(v)
@@ -310,6 +329,14 @@ func (mc *MerchantCreate) check() error {
 	}
 	if _, ok := mc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent_work: missing required field "Merchant.user_id"`)}
+	}
+	if _, ok := mc.mutation.Provence(); !ok {
+		return &ValidationError{Name: "provence", err: errors.New(`ent_work: missing required field "Merchant.provence"`)}
+	}
+	if v, ok := mc.mutation.Provence(); ok {
+		if err := merchant.ProvenceValidator(v); err != nil {
+			return &ValidationError{Name: "provence", err: fmt.Errorf(`ent_work: validator failed for field "Merchant.provence": %w`, err)}
+		}
 	}
 	if _, ok := mc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent_work: missing required edge "Merchant.user"`)}
@@ -382,6 +409,10 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Amount(); ok {
 		_spec.SetField(merchant.FieldAmount, field.TypeInt, value)
 		_node.Amount = value
+	}
+	if value, ok := mc.mutation.Provence(); ok {
+		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
+		_node.Provence = value
 	}
 	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -594,6 +625,18 @@ func (u *MerchantUpsert) UpdateUserID() *MerchantUpsert {
 	return u
 }
 
+// SetProvence sets the "provence" field.
+func (u *MerchantUpsert) SetProvence(v enum.Provence) *MerchantUpsert {
+	u.Set(merchant.FieldProvence, v)
+	return u
+}
+
+// UpdateProvence sets the "provence" field to the value that was provided on create.
+func (u *MerchantUpsert) UpdateProvence() *MerchantUpsert {
+	u.SetExcluded(merchant.FieldProvence)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -789,6 +832,20 @@ func (u *MerchantUpsertOne) SetUserID(v int64) *MerchantUpsertOne {
 func (u *MerchantUpsertOne) UpdateUserID() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetProvence sets the "provence" field.
+func (u *MerchantUpsertOne) SetProvence(v enum.Provence) *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.SetProvence(v)
+	})
+}
+
+// UpdateProvence sets the "provence" field to the value that was provided on create.
+func (u *MerchantUpsertOne) UpdateProvence() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.UpdateProvence()
 	})
 }
 
@@ -1153,6 +1210,20 @@ func (u *MerchantUpsertBulk) SetUserID(v int64) *MerchantUpsertBulk {
 func (u *MerchantUpsertBulk) UpdateUserID() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetProvence sets the "provence" field.
+func (u *MerchantUpsertBulk) SetProvence(v enum.Provence) *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.SetProvence(v)
+	})
+}
+
+// UpdateProvence sets the "provence" field to the value that was provided on create.
+func (u *MerchantUpsertBulk) UpdateProvence() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.UpdateProvence()
 	})
 }
 

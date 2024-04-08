@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // ID filters vertices based on their ID field.
@@ -558,6 +559,36 @@ func UserIDIn(vs ...int64) predicate.Merchant {
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...int64) predicate.Merchant {
 	return predicate.Merchant(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// ProvenceEQ applies the EQ predicate on the "provence" field.
+func ProvenceEQ(v enum.Provence) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldEQ(FieldProvence, vc))
+}
+
+// ProvenceNEQ applies the NEQ predicate on the "provence" field.
+func ProvenceNEQ(v enum.Provence) predicate.Merchant {
+	vc := v
+	return predicate.Merchant(sql.FieldNEQ(FieldProvence, vc))
+}
+
+// ProvenceIn applies the In predicate on the "provence" field.
+func ProvenceIn(vs ...enum.Provence) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldIn(FieldProvence, v...))
+}
+
+// ProvenceNotIn applies the NotIn predicate on the "provence" field.
+func ProvenceNotIn(vs ...enum.Provence) predicate.Merchant {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Merchant(sql.FieldNotIn(FieldProvence, v...))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

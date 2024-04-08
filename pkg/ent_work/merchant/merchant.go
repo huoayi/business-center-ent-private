@@ -3,10 +3,12 @@
 package merchant
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 const (
@@ -34,6 +36,8 @@ const (
 	FieldAmount = "amount"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldProvence holds the string denoting the provence field in the database.
+	FieldProvence = "provence"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeProducts holds the string denoting the products edge name in mutations.
@@ -69,6 +73,7 @@ var Columns = []string{
 	FieldComment,
 	FieldAmount,
 	FieldUserID,
+	FieldProvence,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -107,6 +112,18 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() int64
 )
+
+const DefaultProvence enum.Provence = "河南"
+
+// ProvenceValidator is a validator for the "provence" field enum values. It is called by the builders before save.
+func ProvenceValidator(pr enum.Provence) error {
+	switch pr {
+	case "安徽", "北京", "重庆", "福建", "甘肃", "广东", "广西", "贵州", "海南", "黑龙江", "河北", "河南", "湖北", "湖南", "江苏", "江西", "吉林", "辽宁", "内蒙古", "宁夏", "青海", "山东", "山西", "陕西", "上海", "四川", "天津", "新疆", "云南", "浙江":
+		return nil
+	default:
+		return fmt.Errorf("merchant: invalid enum value for provence field: %q", pr)
+	}
+}
 
 // OrderOption defines the ordering options for the Merchant queries.
 type OrderOption func(*sql.Selector)
@@ -164,6 +181,11 @@ func ByAmount(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByProvence orders the results by the provence field.
+func ByProvence(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProvence, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

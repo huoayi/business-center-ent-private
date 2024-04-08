@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // ID filters vertices based on their ID field.
@@ -628,6 +629,36 @@ func BusinessIDIn(vs ...int64) predicate.Product {
 // BusinessIDNotIn applies the NotIn predicate on the "business_id" field.
 func BusinessIDNotIn(vs ...int64) predicate.Product {
 	return predicate.Product(sql.FieldNotIn(FieldBusinessID, vs...))
+}
+
+// ProduceTypeEQ applies the EQ predicate on the "produce_type" field.
+func ProduceTypeEQ(v enum.ProduceType) predicate.Product {
+	vc := v
+	return predicate.Product(sql.FieldEQ(FieldProduceType, vc))
+}
+
+// ProduceTypeNEQ applies the NEQ predicate on the "produce_type" field.
+func ProduceTypeNEQ(v enum.ProduceType) predicate.Product {
+	vc := v
+	return predicate.Product(sql.FieldNEQ(FieldProduceType, vc))
+}
+
+// ProduceTypeIn applies the In predicate on the "produce_type" field.
+func ProduceTypeIn(vs ...enum.ProduceType) predicate.Product {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Product(sql.FieldIn(FieldProduceType, v...))
+}
+
+// ProduceTypeNotIn applies the NotIn predicate on the "produce_type" field.
+func ProduceTypeNotIn(vs ...enum.ProduceType) predicate.Product {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Product(sql.FieldNotIn(FieldProduceType, v...))
 }
 
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.

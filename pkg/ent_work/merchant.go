@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // Merchant is the model entity for the Merchant schema.
@@ -39,6 +40,8 @@ type Merchant struct {
 	Amount int `json:"amount,omitempty"`
 	// 外键用户 id
 	UserID int64 `json:"user_id,string"`
+	// 省份
+	Provence enum.Provence `json:"provence"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MerchantQuery when eager-loading is set.
 	Edges        MerchantEdges `json:"edges"`
@@ -83,7 +86,7 @@ func (*Merchant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case merchant.FieldID, merchant.FieldCreatedBy, merchant.FieldUpdatedBy, merchant.FieldAmount, merchant.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case merchant.FieldMerchantName, merchant.FieldJpgURL, merchant.FieldComment:
+		case merchant.FieldMerchantName, merchant.FieldJpgURL, merchant.FieldComment, merchant.FieldProvence:
 			values[i] = new(sql.NullString)
 		case merchant.FieldCreatedAt, merchant.FieldUpdatedAt, merchant.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -168,6 +171,12 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.UserID = value.Int64
 			}
+		case merchant.FieldProvence:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field provence", values[i])
+			} else if value.Valid {
+				m.Provence = enum.Provence(value.String)
+			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
 		}
@@ -243,6 +252,9 @@ func (m *Merchant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", m.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("provence=")
+	builder.WriteString(fmt.Sprintf("%v", m.Provence))
 	builder.WriteByte(')')
 	return builder.String()
 }

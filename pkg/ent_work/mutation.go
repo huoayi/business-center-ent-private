@@ -17,6 +17,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 const (
@@ -940,6 +941,7 @@ type MerchantMutation struct {
 	comment         *string
 	amount          *int
 	addamount       *int
+	provence        *enum.Provence
 	clearedFields   map[string]struct{}
 	user            *int64
 	cleareduser     bool
@@ -1475,6 +1477,42 @@ func (m *MerchantMutation) ResetUserID() {
 	m.user = nil
 }
 
+// SetProvence sets the "provence" field.
+func (m *MerchantMutation) SetProvence(e enum.Provence) {
+	m.provence = &e
+}
+
+// Provence returns the value of the "provence" field in the mutation.
+func (m *MerchantMutation) Provence() (r enum.Provence, exists bool) {
+	v := m.provence
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProvence returns the old "provence" field's value of the Merchant entity.
+// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantMutation) OldProvence(ctx context.Context) (v enum.Provence, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProvence is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProvence requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProvence: %w", err)
+	}
+	return oldValue.Provence, nil
+}
+
+// ResetProvence resets all changes to the "provence" field.
+func (m *MerchantMutation) ResetProvence() {
+	m.provence = nil
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *MerchantMutation) ClearUser() {
 	m.cleareduser = true
@@ -1590,7 +1628,7 @@ func (m *MerchantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_by != nil {
 		fields = append(fields, merchant.FieldCreatedBy)
 	}
@@ -1621,6 +1659,9 @@ func (m *MerchantMutation) Fields() []string {
 	if m.user != nil {
 		fields = append(fields, merchant.FieldUserID)
 	}
+	if m.provence != nil {
+		fields = append(fields, merchant.FieldProvence)
+	}
 	return fields
 }
 
@@ -1649,6 +1690,8 @@ func (m *MerchantMutation) Field(name string) (ent.Value, bool) {
 		return m.Amount()
 	case merchant.FieldUserID:
 		return m.UserID()
+	case merchant.FieldProvence:
+		return m.Provence()
 	}
 	return nil, false
 }
@@ -1678,6 +1721,8 @@ func (m *MerchantMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldAmount(ctx)
 	case merchant.FieldUserID:
 		return m.OldUserID(ctx)
+	case merchant.FieldProvence:
+		return m.OldProvence(ctx)
 	}
 	return nil, fmt.Errorf("unknown Merchant field %s", name)
 }
@@ -1756,6 +1801,13 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case merchant.FieldProvence:
+		v, ok := value.(enum.Provence)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProvence(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)
@@ -1874,6 +1926,9 @@ func (m *MerchantMutation) ResetField(name string) error {
 		return nil
 	case merchant.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case merchant.FieldProvence:
+		m.ResetProvence()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)
@@ -2000,6 +2055,7 @@ type ProductMutation struct {
 	price           *int64
 	addprice        *int64
 	unit            *string
+	produce_type    *enum.ProduceType
 	clearedFields   map[string]struct{}
 	merchant        *int64
 	clearedmerchant bool
@@ -2568,6 +2624,42 @@ func (m *ProductMutation) ResetBusinessID() {
 	m.merchant = nil
 }
 
+// SetProduceType sets the "produce_type" field.
+func (m *ProductMutation) SetProduceType(et enum.ProduceType) {
+	m.produce_type = &et
+}
+
+// ProduceType returns the value of the "produce_type" field in the mutation.
+func (m *ProductMutation) ProduceType() (r enum.ProduceType, exists bool) {
+	v := m.produce_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProduceType returns the old "produce_type" field's value of the Product entity.
+// If the Product object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProductMutation) OldProduceType(ctx context.Context) (v enum.ProduceType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProduceType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProduceType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProduceType: %w", err)
+	}
+	return oldValue.ProduceType, nil
+}
+
+// ResetProduceType resets all changes to the "produce_type" field.
+func (m *ProductMutation) ResetProduceType() {
+	m.produce_type = nil
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by id.
 func (m *ProductMutation) SetMerchantID(id int64) {
 	m.merchant = &id
@@ -2642,7 +2734,7 @@ func (m *ProductMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProductMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_by != nil {
 		fields = append(fields, product.FieldCreatedBy)
 	}
@@ -2676,6 +2768,9 @@ func (m *ProductMutation) Fields() []string {
 	if m.merchant != nil {
 		fields = append(fields, product.FieldBusinessID)
 	}
+	if m.produce_type != nil {
+		fields = append(fields, product.FieldProduceType)
+	}
 	return fields
 }
 
@@ -2706,6 +2801,8 @@ func (m *ProductMutation) Field(name string) (ent.Value, bool) {
 		return m.Unit()
 	case product.FieldBusinessID:
 		return m.BusinessID()
+	case product.FieldProduceType:
+		return m.ProduceType()
 	}
 	return nil, false
 }
@@ -2737,6 +2834,8 @@ func (m *ProductMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldUnit(ctx)
 	case product.FieldBusinessID:
 		return m.OldBusinessID(ctx)
+	case product.FieldProduceType:
+		return m.OldProduceType(ctx)
 	}
 	return nil, fmt.Errorf("unknown Product field %s", name)
 }
@@ -2822,6 +2921,13 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBusinessID(v)
+		return nil
+	case product.FieldProduceType:
+		v, ok := value.(enum.ProduceType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProduceType(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Product field %s", name)
@@ -2943,6 +3049,9 @@ func (m *ProductMutation) ResetField(name string) error {
 		return nil
 	case product.FieldBusinessID:
 		m.ResetBusinessID()
+		return nil
+	case product.FieldProduceType:
+		m.ResetProduceType()
 		return nil
 	}
 	return fmt.Errorf("unknown Product field %s", name)

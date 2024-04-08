@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // ProductCreate is the builder for creating a Product entity.
@@ -177,6 +178,20 @@ func (pc *ProductCreate) SetNillableBusinessID(i *int64) *ProductCreate {
 	return pc
 }
 
+// SetProduceType sets the "produce_type" field.
+func (pc *ProductCreate) SetProduceType(et enum.ProduceType) *ProductCreate {
+	pc.mutation.SetProduceType(et)
+	return pc
+}
+
+// SetNillableProduceType sets the "produce_type" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableProduceType(et *enum.ProduceType) *ProductCreate {
+	if et != nil {
+		pc.SetProduceType(*et)
+	}
+	return pc
+}
+
 // SetID sets the "id" field.
 func (pc *ProductCreate) SetID(i int64) *ProductCreate {
 	pc.mutation.SetID(i)
@@ -281,6 +296,10 @@ func (pc *ProductCreate) defaults() {
 		v := product.DefaultBusinessID
 		pc.mutation.SetBusinessID(v)
 	}
+	if _, ok := pc.mutation.ProduceType(); !ok {
+		v := product.DefaultProduceType
+		pc.mutation.SetProduceType(v)
+	}
 	if _, ok := pc.mutation.ID(); !ok {
 		v := product.DefaultID()
 		pc.mutation.SetID(v)
@@ -321,6 +340,14 @@ func (pc *ProductCreate) check() error {
 	}
 	if _, ok := pc.mutation.BusinessID(); !ok {
 		return &ValidationError{Name: "business_id", err: errors.New(`ent_work: missing required field "Product.business_id"`)}
+	}
+	if _, ok := pc.mutation.ProduceType(); !ok {
+		return &ValidationError{Name: "produce_type", err: errors.New(`ent_work: missing required field "Product.produce_type"`)}
+	}
+	if v, ok := pc.mutation.ProduceType(); ok {
+		if err := product.ProduceTypeValidator(v); err != nil {
+			return &ValidationError{Name: "produce_type", err: fmt.Errorf(`ent_work: validator failed for field "Product.produce_type": %w`, err)}
+		}
 	}
 	if _, ok := pc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent_work: missing required edge "Product.merchant"`)}
@@ -397,6 +424,10 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Unit(); ok {
 		_spec.SetField(product.FieldUnit, field.TypeString, value)
 		_node.Unit = value
+	}
+	if value, ok := pc.mutation.ProduceType(); ok {
+		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
+		_node.ProduceType = value
 	}
 	if nodes := pc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -602,6 +633,18 @@ func (u *ProductUpsert) SetBusinessID(v int64) *ProductUpsert {
 // UpdateBusinessID sets the "business_id" field to the value that was provided on create.
 func (u *ProductUpsert) UpdateBusinessID() *ProductUpsert {
 	u.SetExcluded(product.FieldBusinessID)
+	return u
+}
+
+// SetProduceType sets the "produce_type" field.
+func (u *ProductUpsert) SetProduceType(v enum.ProduceType) *ProductUpsert {
+	u.Set(product.FieldProduceType, v)
+	return u
+}
+
+// UpdateProduceType sets the "produce_type" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateProduceType() *ProductUpsert {
+	u.SetExcluded(product.FieldProduceType)
 	return u
 }
 
@@ -814,6 +857,20 @@ func (u *ProductUpsertOne) SetBusinessID(v int64) *ProductUpsertOne {
 func (u *ProductUpsertOne) UpdateBusinessID() *ProductUpsertOne {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateBusinessID()
+	})
+}
+
+// SetProduceType sets the "produce_type" field.
+func (u *ProductUpsertOne) SetProduceType(v enum.ProduceType) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetProduceType(v)
+	})
+}
+
+// UpdateProduceType sets the "produce_type" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateProduceType() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateProduceType()
 	})
 }
 
@@ -1192,6 +1249,20 @@ func (u *ProductUpsertBulk) SetBusinessID(v int64) *ProductUpsertBulk {
 func (u *ProductUpsertBulk) UpdateBusinessID() *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateBusinessID()
+	})
+}
+
+// SetProduceType sets the "produce_type" field.
+func (u *ProductUpsertBulk) SetProduceType(v enum.ProduceType) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetProduceType(v)
+	})
+}
+
+// UpdateProduceType sets the "produce_type" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateProduceType() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateProduceType()
 	})
 }
 

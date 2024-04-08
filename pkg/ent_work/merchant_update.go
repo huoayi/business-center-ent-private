@@ -15,6 +15,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // MerchantUpdate is the builder for updating Merchant entities.
@@ -170,6 +171,20 @@ func (mu *MerchantUpdate) SetNillableUserID(i *int64) *MerchantUpdate {
 	return mu
 }
 
+// SetProvence sets the "provence" field.
+func (mu *MerchantUpdate) SetProvence(e enum.Provence) *MerchantUpdate {
+	mu.mutation.SetProvence(e)
+	return mu
+}
+
+// SetNillableProvence sets the "provence" field if the given value is not nil.
+func (mu *MerchantUpdate) SetNillableProvence(e *enum.Provence) *MerchantUpdate {
+	if e != nil {
+		mu.SetProvence(*e)
+	}
+	return mu
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (mu *MerchantUpdate) SetUser(u *User) *MerchantUpdate {
 	return mu.SetUserID(u.ID)
@@ -260,6 +275,11 @@ func (mu *MerchantUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mu *MerchantUpdate) check() error {
+	if v, ok := mu.mutation.Provence(); ok {
+		if err := merchant.ProvenceValidator(v); err != nil {
+			return &ValidationError{Name: "provence", err: fmt.Errorf(`ent_work: validator failed for field "Merchant.provence": %w`, err)}
+		}
+	}
 	if _, ok := mu.mutation.UserID(); mu.mutation.UserCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Merchant.user"`)
 	}
@@ -316,6 +336,9 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mu.mutation.AddedAmount(); ok {
 		_spec.AddField(merchant.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := mu.mutation.Provence(); ok {
+		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
 	}
 	if mu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -552,6 +575,20 @@ func (muo *MerchantUpdateOne) SetNillableUserID(i *int64) *MerchantUpdateOne {
 	return muo
 }
 
+// SetProvence sets the "provence" field.
+func (muo *MerchantUpdateOne) SetProvence(e enum.Provence) *MerchantUpdateOne {
+	muo.mutation.SetProvence(e)
+	return muo
+}
+
+// SetNillableProvence sets the "provence" field if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillableProvence(e *enum.Provence) *MerchantUpdateOne {
+	if e != nil {
+		muo.SetProvence(*e)
+	}
+	return muo
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (muo *MerchantUpdateOne) SetUser(u *User) *MerchantUpdateOne {
 	return muo.SetUserID(u.ID)
@@ -655,6 +692,11 @@ func (muo *MerchantUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (muo *MerchantUpdateOne) check() error {
+	if v, ok := muo.mutation.Provence(); ok {
+		if err := merchant.ProvenceValidator(v); err != nil {
+			return &ValidationError{Name: "provence", err: fmt.Errorf(`ent_work: validator failed for field "Merchant.provence": %w`, err)}
+		}
+	}
 	if _, ok := muo.mutation.UserID(); muo.mutation.UserCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Merchant.user"`)
 	}
@@ -728,6 +770,9 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if value, ok := muo.mutation.AddedAmount(); ok {
 		_spec.AddField(merchant.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := muo.mutation.Provence(); ok {
+		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
 	}
 	if muo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

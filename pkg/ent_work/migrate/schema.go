@@ -56,6 +56,7 @@ var (
 		{Name: "jpg_url", Type: field.TypeString, Comment: "商户头像", Default: ""},
 		{Name: "comment", Type: field.TypeString, Comment: "商户介绍", Default: ""},
 		{Name: "amount", Type: field.TypeInt, Comment: "上架商品总数", Default: 0},
+		{Name: "provence", Type: field.TypeEnum, Comment: "省份", Enums: []string{"安徽", "北京", "重庆", "福建", "甘肃", "广东", "广西", "贵州", "海南", "黑龙江", "河北", "河南", "湖北", "湖南", "江苏", "江西", "吉林", "辽宁", "内蒙古", "宁夏", "青海", "山东", "山西", "陕西", "上海", "四川", "天津", "新疆", "云南", "浙江"}, Default: "河南"},
 		{Name: "user_id", Type: field.TypeInt64, Comment: "外键用户 id", Default: 0},
 	}
 	// MerchantsTable holds the schema information for the "merchants" table.
@@ -66,7 +67,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "merchants_users_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[10]},
+				Columns:    []*schema.Column{MerchantsColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -85,6 +86,7 @@ var (
 		{Name: "comment", Type: field.TypeString, Comment: "产品介绍", Default: ""},
 		{Name: "price", Type: field.TypeInt64, Comment: "单价", Default: 0},
 		{Name: "unit", Type: field.TypeString, Comment: "单价使用单位", Default: ""},
+		{Name: "produce_type", Type: field.TypeEnum, Comment: "产品类型", Enums: []string{"tea", "edible-fungi", "vegetable", "seedlings", "medicinal-materials", "grain-and-oil-crops", "fisheries", "animal-husbandry"}, Default: "tea"},
 		{Name: "business_id", Type: field.TypeInt64, Comment: "外键商户用户 id", Default: 0},
 	}
 	// ProductsTable holds the schema information for the "products" table.
@@ -95,7 +97,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_merchants_products",
-				Columns:    []*schema.Column{ProductsColumns[11]},
+				Columns:    []*schema.Column{ProductsColumns[12]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

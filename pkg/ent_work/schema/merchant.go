@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 type Merchant struct {
@@ -17,6 +18,7 @@ func (Merchant) Fields() []ent.Field {
 		field.String("comment").Default("").StructTag(`json:"comment"`).Comment("商户介绍"),
 		field.Int("amount").Default(0).Comment("上架商品总数"),
 		field.Int64("user_id").StructTag(`json:"user_id,string"`).Default(0).Comment("外键用户 id"),
+		field.Enum("provence").GoType(enum.HeNan).StructTag(`json:"provence"`).Default(string(enum.HeNan)).Comment("省份"),
 	}
 }
 

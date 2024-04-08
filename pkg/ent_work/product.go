@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // Product is the model entity for the Product schema.
@@ -41,6 +42,8 @@ type Product struct {
 	Unit string `json:"unit,omitempty"`
 	// 外键商户用户 id
 	BusinessID int64 `json:"merchant_id"`
+	// 产品类型
+	ProduceType enum.ProduceType `json:"produce_type"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProductQuery when eager-loading is set.
 	Edges        ProductEdges `json:"edges"`
@@ -74,7 +77,7 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldPrice, product.FieldBusinessID:
 			values[i] = new(sql.NullInt64)
-		case product.FieldProductName, product.FieldJpgURL, product.FieldComment, product.FieldUnit:
+		case product.FieldProductName, product.FieldJpgURL, product.FieldComment, product.FieldUnit, product.FieldProduceType:
 			values[i] = new(sql.NullString)
 		case product.FieldCreatedAt, product.FieldUpdatedAt, product.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -165,6 +168,12 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.BusinessID = value.Int64
 			}
+		case product.FieldProduceType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field produce_type", values[i])
+			} else if value.Valid {
+				pr.ProduceType = enum.ProduceType(value.String)
+			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
 		}
@@ -238,6 +247,9 @@ func (pr *Product) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("business_id=")
 	builder.WriteString(fmt.Sprintf("%v", pr.BusinessID))
+	builder.WriteString(", ")
+	builder.WriteString("produce_type=")
+	builder.WriteString(fmt.Sprintf("%v", pr.ProduceType))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -3,10 +3,12 @@
 package product
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 const (
@@ -36,6 +38,8 @@ const (
 	FieldUnit = "unit"
 	// FieldBusinessID holds the string denoting the business_id field in the database.
 	FieldBusinessID = "business_id"
+	// FieldProduceType holds the string denoting the produce_type field in the database.
+	FieldProduceType = "produce_type"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// Table holds the table name of the product in the database.
@@ -63,6 +67,7 @@ var Columns = []string{
 	FieldPrice,
 	FieldUnit,
 	FieldBusinessID,
+	FieldProduceType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -103,6 +108,18 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() int64
 )
+
+const DefaultProduceType enum.ProduceType = "tea"
+
+// ProduceTypeValidator is a validator for the "produce_type" field enum values. It is called by the builders before save.
+func ProduceTypeValidator(pt enum.ProduceType) error {
+	switch pt {
+	case "tea", "edible-fungi", "vegetable", "seedlings", "medicinal-materials", "grain-and-oil-crops", "fisheries", "animal-husbandry":
+		return nil
+	default:
+		return fmt.Errorf("product: invalid enum value for produce_type field: %q", pt)
+	}
+}
 
 // OrderOption defines the ordering options for the Product queries.
 type OrderOption func(*sql.Selector)
@@ -165,6 +182,11 @@ func ByUnit(opts ...sql.OrderTermOption) OrderOption {
 // ByBusinessID orders the results by the business_id field.
 func ByBusinessID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBusinessID, opts...).ToFunc()
+}
+
+// ByProduceType orders the results by the produce_type field.
+func ByProduceType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProduceType, opts...).ToFunc()
 }
 
 // ByMerchantField orders the results by merchant field.

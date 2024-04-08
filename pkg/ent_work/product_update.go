@@ -14,6 +14,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // ProductUpdate is the builder for updating Product entities.
@@ -183,6 +184,20 @@ func (pu *ProductUpdate) SetNillableBusinessID(i *int64) *ProductUpdate {
 	return pu
 }
 
+// SetProduceType sets the "produce_type" field.
+func (pu *ProductUpdate) SetProduceType(et enum.ProduceType) *ProductUpdate {
+	pu.mutation.SetProduceType(et)
+	return pu
+}
+
+// SetNillableProduceType sets the "produce_type" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableProduceType(et *enum.ProduceType) *ProductUpdate {
+	if et != nil {
+		pu.SetProduceType(*et)
+	}
+	return pu
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
 func (pu *ProductUpdate) SetMerchantID(id int64) *ProductUpdate {
 	pu.mutation.SetMerchantID(id)
@@ -243,6 +258,11 @@ func (pu *ProductUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *ProductUpdate) check() error {
+	if v, ok := pu.mutation.ProduceType(); ok {
+		if err := product.ProduceTypeValidator(v); err != nil {
+			return &ValidationError{Name: "produce_type", err: fmt.Errorf(`ent_work: validator failed for field "Product.produce_type": %w`, err)}
+		}
+	}
 	if _, ok := pu.mutation.MerchantID(); pu.mutation.MerchantCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Product.merchant"`)
 	}
@@ -302,6 +322,9 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Unit(); ok {
 		_spec.SetField(product.FieldUnit, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.ProduceType(); ok {
+		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
 	}
 	if pu.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -507,6 +530,20 @@ func (puo *ProductUpdateOne) SetNillableBusinessID(i *int64) *ProductUpdateOne {
 	return puo
 }
 
+// SetProduceType sets the "produce_type" field.
+func (puo *ProductUpdateOne) SetProduceType(et enum.ProduceType) *ProductUpdateOne {
+	puo.mutation.SetProduceType(et)
+	return puo
+}
+
+// SetNillableProduceType sets the "produce_type" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableProduceType(et *enum.ProduceType) *ProductUpdateOne {
+	if et != nil {
+		puo.SetProduceType(*et)
+	}
+	return puo
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
 func (puo *ProductUpdateOne) SetMerchantID(id int64) *ProductUpdateOne {
 	puo.mutation.SetMerchantID(id)
@@ -580,6 +617,11 @@ func (puo *ProductUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *ProductUpdateOne) check() error {
+	if v, ok := puo.mutation.ProduceType(); ok {
+		if err := product.ProduceTypeValidator(v); err != nil {
+			return &ValidationError{Name: "produce_type", err: fmt.Errorf(`ent_work: validator failed for field "Product.produce_type": %w`, err)}
+		}
+	}
 	if _, ok := puo.mutation.MerchantID(); puo.mutation.MerchantCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Product.merchant"`)
 	}
@@ -656,6 +698,9 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if value, ok := puo.mutation.Unit(); ok {
 		_spec.SetField(product.FieldUnit, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.ProduceType(); ok {
+		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
 	}
 	if puo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
