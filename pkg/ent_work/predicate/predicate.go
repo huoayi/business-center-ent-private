@@ -9,6 +9,12 @@ import (
 // LoginRecord is the predicate function for loginrecord builders.
 type LoginRecord func(*sql.Selector)
 
+// Merchant is the predicate function for merchant builders.
+type Merchant func(*sql.Selector)
+
+// Product is the predicate function for product builders.
+type Product func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
 

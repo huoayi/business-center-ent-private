@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -332,6 +333,21 @@ func (uu *UserUpdate) AddChildren(u ...*User) *UserUpdate {
 	return uu.AddChildIDs(ids...)
 }
 
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
+func (uu *UserUpdate) AddMerchantIDs(ids ...int64) *UserUpdate {
+	uu.mutation.AddMerchantIDs(ids...)
+	return uu
+}
+
+// AddMerchants adds the "merchants" edges to the Merchant entity.
+func (uu *UserUpdate) AddMerchants(m ...*Merchant) *UserUpdate {
+	ids := make([]int64, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uu.AddMerchantIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -404,6 +420,27 @@ func (uu *UserUpdate) RemoveChildren(u ...*User) *UserUpdate {
 		ids[i] = u[i].ID
 	}
 	return uu.RemoveChildIDs(ids...)
+}
+
+// ClearMerchants clears all "merchants" edges to the Merchant entity.
+func (uu *UserUpdate) ClearMerchants() *UserUpdate {
+	uu.mutation.ClearMerchants()
+	return uu
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
+func (uu *UserUpdate) RemoveMerchantIDs(ids ...int64) *UserUpdate {
+	uu.mutation.RemoveMerchantIDs(ids...)
+	return uu
+}
+
+// RemoveMerchants removes "merchants" edges to Merchant entities.
+func (uu *UserUpdate) RemoveMerchants(m ...*Merchant) *UserUpdate {
+	ids := make([]int64, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uu.RemoveMerchantIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -687,6 +724,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.MerchantsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedMerchantsIDs(); len(nodes) > 0 && !uu.mutation.MerchantsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.MerchantsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1017,6 +1099,21 @@ func (uuo *UserUpdateOne) AddChildren(u ...*User) *UserUpdateOne {
 	return uuo.AddChildIDs(ids...)
 }
 
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
+func (uuo *UserUpdateOne) AddMerchantIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.AddMerchantIDs(ids...)
+	return uuo
+}
+
+// AddMerchants adds the "merchants" edges to the Merchant entity.
+func (uuo *UserUpdateOne) AddMerchants(m ...*Merchant) *UserUpdateOne {
+	ids := make([]int64, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uuo.AddMerchantIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
@@ -1089,6 +1186,27 @@ func (uuo *UserUpdateOne) RemoveChildren(u ...*User) *UserUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return uuo.RemoveChildIDs(ids...)
+}
+
+// ClearMerchants clears all "merchants" edges to the Merchant entity.
+func (uuo *UserUpdateOne) ClearMerchants() *UserUpdateOne {
+	uuo.mutation.ClearMerchants()
+	return uuo
+}
+
+// RemoveMerchantIDs removes the "merchants" edge to Merchant entities by IDs.
+func (uuo *UserUpdateOne) RemoveMerchantIDs(ids ...int64) *UserUpdateOne {
+	uuo.mutation.RemoveMerchantIDs(ids...)
+	return uuo
+}
+
+// RemoveMerchants removes "merchants" edges to Merchant entities.
+func (uuo *UserUpdateOne) RemoveMerchants(m ...*Merchant) *UserUpdateOne {
+	ids := make([]int64, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uuo.RemoveMerchantIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -1402,6 +1520,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.MerchantsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedMerchantsIDs(); len(nodes) > 0 && !uuo.mutation.MerchantsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.MerchantsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

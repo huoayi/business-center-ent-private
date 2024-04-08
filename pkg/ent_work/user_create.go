@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
 )
@@ -338,6 +339,21 @@ func (uc *UserCreate) AddChildren(u ...*User) *UserCreate {
 		ids[i] = u[i].ID
 	}
 	return uc.AddChildIDs(ids...)
+}
+
+// AddMerchantIDs adds the "merchants" edge to the Merchant entity by IDs.
+func (uc *UserCreate) AddMerchantIDs(ids ...int64) *UserCreate {
+	uc.mutation.AddMerchantIDs(ids...)
+	return uc
+}
+
+// AddMerchants adds the "merchants" edges to the Merchant entity.
+func (uc *UserCreate) AddMerchants(m ...*Merchant) *UserCreate {
+	ids := make([]int64, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return uc.AddMerchantIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -676,6 +692,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.MerchantsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.MerchantsTable,
+			Columns: []string{user.MerchantsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

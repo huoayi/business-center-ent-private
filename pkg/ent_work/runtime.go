@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/schema"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -62,6 +64,112 @@ func init() {
 	loginrecordDescID := loginrecordMixinFields0[0].Descriptor()
 	// loginrecord.DefaultID holds the default value on creation for the id field.
 	loginrecord.DefaultID = loginrecordDescID.Default.(func() int64)
+	merchantMixin := schema.Merchant{}.Mixin()
+	merchantMixinFields0 := merchantMixin[0].Fields()
+	_ = merchantMixinFields0
+	merchantFields := schema.Merchant{}.Fields()
+	_ = merchantFields
+	// merchantDescCreatedBy is the schema descriptor for created_by field.
+	merchantDescCreatedBy := merchantMixinFields0[1].Descriptor()
+	// merchant.DefaultCreatedBy holds the default value on creation for the created_by field.
+	merchant.DefaultCreatedBy = merchantDescCreatedBy.Default.(int64)
+	// merchantDescUpdatedBy is the schema descriptor for updated_by field.
+	merchantDescUpdatedBy := merchantMixinFields0[2].Descriptor()
+	// merchant.DefaultUpdatedBy holds the default value on creation for the updated_by field.
+	merchant.DefaultUpdatedBy = merchantDescUpdatedBy.Default.(int64)
+	// merchantDescCreatedAt is the schema descriptor for created_at field.
+	merchantDescCreatedAt := merchantMixinFields0[3].Descriptor()
+	// merchant.DefaultCreatedAt holds the default value on creation for the created_at field.
+	merchant.DefaultCreatedAt = merchantDescCreatedAt.Default.(func() time.Time)
+	// merchantDescUpdatedAt is the schema descriptor for updated_at field.
+	merchantDescUpdatedAt := merchantMixinFields0[4].Descriptor()
+	// merchant.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	merchant.DefaultUpdatedAt = merchantDescUpdatedAt.Default.(func() time.Time)
+	// merchant.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	merchant.UpdateDefaultUpdatedAt = merchantDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// merchantDescDeletedAt is the schema descriptor for deleted_at field.
+	merchantDescDeletedAt := merchantMixinFields0[5].Descriptor()
+	// merchant.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	merchant.DefaultDeletedAt = merchantDescDeletedAt.Default.(time.Time)
+	// merchantDescMerchantName is the schema descriptor for merchant_name field.
+	merchantDescMerchantName := merchantFields[0].Descriptor()
+	// merchant.DefaultMerchantName holds the default value on creation for the merchant_name field.
+	merchant.DefaultMerchantName = merchantDescMerchantName.Default.(string)
+	// merchantDescJpgURL is the schema descriptor for jpg_url field.
+	merchantDescJpgURL := merchantFields[1].Descriptor()
+	// merchant.DefaultJpgURL holds the default value on creation for the jpg_url field.
+	merchant.DefaultJpgURL = merchantDescJpgURL.Default.(string)
+	// merchantDescComment is the schema descriptor for comment field.
+	merchantDescComment := merchantFields[2].Descriptor()
+	// merchant.DefaultComment holds the default value on creation for the comment field.
+	merchant.DefaultComment = merchantDescComment.Default.(string)
+	// merchantDescAmount is the schema descriptor for amount field.
+	merchantDescAmount := merchantFields[3].Descriptor()
+	// merchant.DefaultAmount holds the default value on creation for the amount field.
+	merchant.DefaultAmount = merchantDescAmount.Default.(int)
+	// merchantDescUserID is the schema descriptor for user_id field.
+	merchantDescUserID := merchantFields[4].Descriptor()
+	// merchant.DefaultUserID holds the default value on creation for the user_id field.
+	merchant.DefaultUserID = merchantDescUserID.Default.(int64)
+	// merchantDescID is the schema descriptor for id field.
+	merchantDescID := merchantMixinFields0[0].Descriptor()
+	// merchant.DefaultID holds the default value on creation for the id field.
+	merchant.DefaultID = merchantDescID.Default.(func() int64)
+	productMixin := schema.Product{}.Mixin()
+	productMixinFields0 := productMixin[0].Fields()
+	_ = productMixinFields0
+	productFields := schema.Product{}.Fields()
+	_ = productFields
+	// productDescCreatedBy is the schema descriptor for created_by field.
+	productDescCreatedBy := productMixinFields0[1].Descriptor()
+	// product.DefaultCreatedBy holds the default value on creation for the created_by field.
+	product.DefaultCreatedBy = productDescCreatedBy.Default.(int64)
+	// productDescUpdatedBy is the schema descriptor for updated_by field.
+	productDescUpdatedBy := productMixinFields0[2].Descriptor()
+	// product.DefaultUpdatedBy holds the default value on creation for the updated_by field.
+	product.DefaultUpdatedBy = productDescUpdatedBy.Default.(int64)
+	// productDescCreatedAt is the schema descriptor for created_at field.
+	productDescCreatedAt := productMixinFields0[3].Descriptor()
+	// product.DefaultCreatedAt holds the default value on creation for the created_at field.
+	product.DefaultCreatedAt = productDescCreatedAt.Default.(func() time.Time)
+	// productDescUpdatedAt is the schema descriptor for updated_at field.
+	productDescUpdatedAt := productMixinFields0[4].Descriptor()
+	// product.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	product.DefaultUpdatedAt = productDescUpdatedAt.Default.(func() time.Time)
+	// product.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	product.UpdateDefaultUpdatedAt = productDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productDescDeletedAt is the schema descriptor for deleted_at field.
+	productDescDeletedAt := productMixinFields0[5].Descriptor()
+	// product.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	product.DefaultDeletedAt = productDescDeletedAt.Default.(time.Time)
+	// productDescProductName is the schema descriptor for product_name field.
+	productDescProductName := productFields[0].Descriptor()
+	// product.DefaultProductName holds the default value on creation for the product_name field.
+	product.DefaultProductName = productDescProductName.Default.(string)
+	// productDescJpgURL is the schema descriptor for jpg_url field.
+	productDescJpgURL := productFields[1].Descriptor()
+	// product.DefaultJpgURL holds the default value on creation for the jpg_url field.
+	product.DefaultJpgURL = productDescJpgURL.Default.(string)
+	// productDescComment is the schema descriptor for comment field.
+	productDescComment := productFields[2].Descriptor()
+	// product.DefaultComment holds the default value on creation for the comment field.
+	product.DefaultComment = productDescComment.Default.(string)
+	// productDescPrice is the schema descriptor for price field.
+	productDescPrice := productFields[3].Descriptor()
+	// product.DefaultPrice holds the default value on creation for the price field.
+	product.DefaultPrice = productDescPrice.Default.(int64)
+	// productDescUnit is the schema descriptor for unit field.
+	productDescUnit := productFields[4].Descriptor()
+	// product.DefaultUnit holds the default value on creation for the unit field.
+	product.DefaultUnit = productDescUnit.Default.(string)
+	// productDescBusinessID is the schema descriptor for business_id field.
+	productDescBusinessID := productFields[5].Descriptor()
+	// product.DefaultBusinessID holds the default value on creation for the business_id field.
+	product.DefaultBusinessID = productDescBusinessID.Default.(int64)
+	// productDescID is the schema descriptor for id field.
+	productDescID := productMixinFields0[0].Descriptor()
+	// product.DefaultID holds the default value on creation for the id field.
+	product.DefaultID = productDescID.Default.(func() int64)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

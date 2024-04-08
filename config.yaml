@@ -1,5 +1,6 @@
 db:
   host: '59.110.65.99'
+#  host: '127.0.0.1'
   port: 5432
   username: 'postgres'
   password: '020702'

@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/vxsocial"
@@ -28,6 +29,7 @@ type UserQuery struct {
 	withVxSocials    *VXSocialQuery
 	withParent       *UserQuery
 	withChildren     *UserQuery
+	withMerchants    *MerchantQuery
 	modifiers        []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -146,6 +148,28 @@ func (uq *UserQuery) QueryChildren() *UserQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.ChildrenTable, user.ChildrenColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMerchants chains the current query on the "merchants" edge.
+func (uq *UserQuery) QueryMerchants() *MerchantQuery {
+	query := (&MerchantClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(merchant.Table, merchant.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.MerchantsTable, user.MerchantsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -349,6 +373,7 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withVxSocials:    uq.withVxSocials.Clone(),
 		withParent:       uq.withParent.Clone(),
 		withChildren:     uq.withChildren.Clone(),
+		withMerchants:    uq.withMerchants.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -396,6 +421,17 @@ func (uq *UserQuery) WithChildren(opts ...func(*UserQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withChildren = query
+	return uq
+}
+
+// WithMerchants tells the query-builder to eager-load the nodes that are connected to
+// the "merchants" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithMerchants(opts ...func(*MerchantQuery)) *UserQuery {
+	query := (&MerchantClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withMerchants = query
 	return uq
 }
 
@@ -477,11 +513,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			uq.withLoginRecords != nil,
 			uq.withVxSocials != nil,
 			uq.withParent != nil,
 			uq.withChildren != nil,
+			uq.withMerchants != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -529,6 +566,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadChildren(ctx, query, nodes,
 			func(n *User) { n.Edges.Children = []*User{} },
 			func(n *User, e *User) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withMerchants; query != nil {
+		if err := uq.loadMerchants(ctx, query, nodes,
+			func(n *User) { n.Edges.Merchants = []*Merchant{} },
+			func(n *User, e *Merchant) { n.Edges.Merchants = append(n.Edges.Merchants, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -649,6 +693,36 @@ func (uq *UserQuery) loadChildren(ctx context.Context, query *UserQuery, nodes [
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "parent_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadMerchants(ctx context.Context, query *MerchantQuery, nodes []*User, init func(*User), assign func(*User, *Merchant)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(merchant.FieldUserID)
+	}
+	query.Where(predicate.Merchant(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.MerchantsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

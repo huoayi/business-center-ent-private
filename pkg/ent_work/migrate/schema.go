@@ -44,6 +44,63 @@ var (
 			},
 		},
 	}
+	// MerchantsColumns holds the columns for the "merchants" table.
+	MerchantsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
+		{Name: "created_by", Type: field.TypeInt64, Comment: "创建者 ID", Default: 0},
+		{Name: "updated_by", Type: field.TypeInt64, Comment: "更新者 ID", Default: 0},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时刻，带时区"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时刻，带时区"},
+		{Name: "deleted_at", Type: field.TypeTime, Comment: "软删除时刻，带时区"},
+		{Name: "merchant_name", Type: field.TypeString, Comment: "商户姓名", Default: "默认商户"},
+		{Name: "jpg_url", Type: field.TypeString, Comment: "商户头像", Default: ""},
+		{Name: "comment", Type: field.TypeString, Comment: "商户介绍", Default: ""},
+		{Name: "amount", Type: field.TypeInt, Comment: "上架商品总数", Default: 0},
+		{Name: "user_id", Type: field.TypeInt64, Comment: "外键用户 id", Default: 0},
+	}
+	// MerchantsTable holds the schema information for the "merchants" table.
+	MerchantsTable = &schema.Table{
+		Name:       "merchants",
+		Columns:    MerchantsColumns,
+		PrimaryKey: []*schema.Column{MerchantsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "merchants_users_merchants",
+				Columns:    []*schema.Column{MerchantsColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// ProductsColumns holds the columns for the "products" table.
+	ProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
+		{Name: "created_by", Type: field.TypeInt64, Comment: "创建者 ID", Default: 0},
+		{Name: "updated_by", Type: field.TypeInt64, Comment: "更新者 ID", Default: 0},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时刻，带时区"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时刻，带时区"},
+		{Name: "deleted_at", Type: field.TypeTime, Comment: "软删除时刻，带时区"},
+		{Name: "product_name", Type: field.TypeString, Comment: "产品名称", Default: "未知产品"},
+		{Name: "jpg_url", Type: field.TypeString, Comment: "产品照片", Default: ""},
+		{Name: "comment", Type: field.TypeString, Comment: "产品介绍", Default: ""},
+		{Name: "price", Type: field.TypeInt64, Comment: "单价", Default: 0},
+		{Name: "unit", Type: field.TypeString, Comment: "单价使用单位", Default: ""},
+		{Name: "business_id", Type: field.TypeInt64, Comment: "外键商户用户 id", Default: 0},
+	}
+	// ProductsTable holds the schema information for the "products" table.
+	ProductsTable = &schema.Table{
+		Name:       "products",
+		Columns:    ProductsColumns,
+		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "products_merchants_products",
+				Columns:    []*schema.Column{ProductsColumns[11]},
+				RefColumns: []*schema.Column{MerchantsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
@@ -123,6 +180,8 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		LoginRecordsTable,
+		MerchantsTable,
+		ProductsTable,
 		UsersTable,
 		VxSocialsTable,
 	}
@@ -131,6 +190,10 @@ var (
 func init() {
 	LoginRecordsTable.ForeignKeys[0].RefTable = UsersTable
 	LoginRecordsTable.Annotation = &entsql.Annotation{}
+	MerchantsTable.ForeignKeys[0].RefTable = UsersTable
+	MerchantsTable.Annotation = &entsql.Annotation{}
+	ProductsTable.ForeignKeys[0].RefTable = MerchantsTable
+	ProductsTable.Annotation = &entsql.Annotation{}
 	UsersTable.ForeignKeys[0].RefTable = UsersTable
 	UsersTable.Annotation = &entsql.Annotation{}
 	VxSocialsTable.ForeignKeys[0].RefTable = UsersTable

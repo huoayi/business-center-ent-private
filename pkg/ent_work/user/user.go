@@ -59,6 +59,8 @@ const (
 	EdgeParent = "parent"
 	// EdgeChildren holds the string denoting the children edge name in mutations.
 	EdgeChildren = "children"
+	// EdgeMerchants holds the string denoting the merchants edge name in mutations.
+	EdgeMerchants = "merchants"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// LoginRecordsTable is the table that holds the login_records relation/edge.
@@ -83,6 +85,13 @@ const (
 	ChildrenTable = "users"
 	// ChildrenColumn is the table column denoting the children relation/edge.
 	ChildrenColumn = "parent_id"
+	// MerchantsTable is the table that holds the merchants relation/edge.
+	MerchantsTable = "merchants"
+	// MerchantsInverseTable is the table name for the Merchant entity.
+	// It exists in this package in order to avoid circular dependency with the "merchant" package.
+	MerchantsInverseTable = "merchants"
+	// MerchantsColumn is the table column denoting the merchants relation/edge.
+	MerchantsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -331,6 +340,20 @@ func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newChildrenStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMerchantsCount orders the results by merchants count.
+func ByMerchantsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMerchantsStep(), opts...)
+	}
+}
+
+// ByMerchants orders the results by merchants terms.
+func ByMerchants(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMerchantsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newLoginRecordsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -357,5 +380,12 @@ func newChildrenStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(Table, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
+	)
+}
+func newMerchantsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MerchantsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MerchantsTable, MerchantsColumn),
 	)
 }
