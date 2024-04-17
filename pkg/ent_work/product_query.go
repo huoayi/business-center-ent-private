@@ -4,6 +4,7 @@ package ent_work
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 )
@@ -23,6 +25,7 @@ type ProductQuery struct {
 	inters       []Interceptor
 	predicates   []predicate.Product
 	withMerchant *MerchantQuery
+	withOrders   *OrderQuery
 	modifiers    []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -74,7 +77,29 @@ func (pq *ProductQuery) QueryMerchant() *MerchantQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, product.MerchantTable, product.MerchantColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, product.MerchantTable, product.MerchantColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOrders chains the current query on the "orders" edge.
+func (pq *ProductQuery) QueryOrders() *OrderQuery {
+	query := (&OrderClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(product.Table, product.FieldID, selector),
+			sqlgraph.To(order.Table, order.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, product.OrdersTable, product.OrdersColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -275,6 +300,7 @@ func (pq *ProductQuery) Clone() *ProductQuery {
 		inters:       append([]Interceptor{}, pq.inters...),
 		predicates:   append([]predicate.Product{}, pq.predicates...),
 		withMerchant: pq.withMerchant.Clone(),
+		withOrders:   pq.withOrders.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
@@ -289,6 +315,17 @@ func (pq *ProductQuery) WithMerchant(opts ...func(*MerchantQuery)) *ProductQuery
 		opt(query)
 	}
 	pq.withMerchant = query
+	return pq
+}
+
+// WithOrders tells the query-builder to eager-load the nodes that are connected to
+// the "orders" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProductQuery) WithOrders(opts ...func(*OrderQuery)) *ProductQuery {
+	query := (&OrderClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withOrders = query
 	return pq
 }
 
@@ -370,8 +407,9 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	var (
 		nodes       = []*Product{}
 		_spec       = pq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			pq.withMerchant != nil,
+			pq.withOrders != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -398,6 +436,13 @@ func (pq *ProductQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Prod
 	if query := pq.withMerchant; query != nil {
 		if err := pq.loadMerchant(ctx, query, nodes, nil,
 			func(n *Product, e *Merchant) { n.Edges.Merchant = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := pq.withOrders; query != nil {
+		if err := pq.loadOrders(ctx, query, nodes,
+			func(n *Product) { n.Edges.Orders = []*Order{} },
+			func(n *Product, e *Order) { n.Edges.Orders = append(n.Edges.Orders, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -430,6 +475,36 @@ func (pq *ProductQuery) loadMerchant(ctx context.Context, query *MerchantQuery, 
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (pq *ProductQuery) loadOrders(ctx context.Context, query *OrderQuery, nodes []*Product, init func(*Product), assign func(*Product, *Order)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*Product)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(order.FieldProductsID)
+	}
+	query.Where(predicate.Order(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(product.OrdersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ProductsID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "products_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

@@ -12,6 +12,9 @@ type LoginRecord func(*sql.Selector)
 // Merchant is the predicate function for merchant builders.
 type Merchant func(*sql.Selector)
 
+// Order is the predicate function for order builders.
+type Order func(*sql.Selector)
+
 // Product is the predicate function for product builders.
 type Product func(*sql.Selector)
 

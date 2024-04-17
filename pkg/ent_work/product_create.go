@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
@@ -215,6 +216,21 @@ func (pc *ProductCreate) SetMerchantID(id int64) *ProductCreate {
 // SetMerchant sets the "merchant" edge to the Merchant entity.
 func (pc *ProductCreate) SetMerchant(m *Merchant) *ProductCreate {
 	return pc.SetMerchantID(m.ID)
+}
+
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (pc *ProductCreate) AddOrderIDs(ids ...int64) *ProductCreate {
+	pc.mutation.AddOrderIDs(ids...)
+	return pc
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (pc *ProductCreate) AddOrders(o ...*Order) *ProductCreate {
+	ids := make([]int64, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return pc.AddOrderIDs(ids...)
 }
 
 // Mutation returns the ProductMutation object of the builder.
@@ -431,7 +447,7 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 	}
 	if nodes := pc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -444,6 +460,22 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BusinessID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := pc.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

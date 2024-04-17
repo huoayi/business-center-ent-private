@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
 	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
@@ -53,7 +54,7 @@ type MerchantEdges struct {
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// Products holds the value of the products edge.
-	Products []*Product `json:"products,omitempty"`
+	Products *Product `json:"products,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -71,10 +72,12 @@ func (e MerchantEdges) UserOrErr() (*User, error) {
 }
 
 // ProductsOrErr returns the Products value or an error if the edge
-// was not loaded in eager-loading.
-func (e MerchantEdges) ProductsOrErr() ([]*Product, error) {
-	if e.loadedTypes[1] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MerchantEdges) ProductsOrErr() (*Product, error) {
+	if e.Products != nil {
 		return e.Products, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: product.Label}
 	}
 	return nil, &NotLoadedError{edge: "products"}
 }

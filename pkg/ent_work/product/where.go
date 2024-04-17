@@ -666,7 +666,7 @@ func HasMerchant() predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, MerchantTable, MerchantColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -676,6 +676,29 @@ func HasMerchant() predicate.Product {
 func HasMerchantWith(preds ...predicate.Merchant) predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := newMerchantStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasOrders applies the HasEdge predicate on the "orders" edge.
+func HasOrders() predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOrdersWith applies the HasEdge predicate on the "orders" edge with a given conditions (other predicates).
+func HasOrdersWith(preds ...predicate.Order) predicate.Product {
+	return predicate.Product(func(s *sql.Selector) {
+		step := newOrdersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

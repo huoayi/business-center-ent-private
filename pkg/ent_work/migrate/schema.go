@@ -73,6 +73,40 @@ var (
 			},
 		},
 	}
+	// OrdersColumns holds the columns for the "orders" table.
+	OrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
+		{Name: "created_by", Type: field.TypeInt64, Comment: "创建者 ID", Default: 0},
+		{Name: "updated_by", Type: field.TypeInt64, Comment: "更新者 ID", Default: 0},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时刻，带时区"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时刻，带时区"},
+		{Name: "deleted_at", Type: field.TypeTime, Comment: "软删除时刻，带时区"},
+		{Name: "count", Type: field.TypeInt64, Comment: "数量，按照商品计量单位计算", Default: 0},
+		{Name: "amount", Type: field.TypeInt64, Comment: "总价", Default: 0},
+		{Name: "address", Type: field.TypeString, Comment: "收货地址", Default: ""},
+		{Name: "products_id", Type: field.TypeInt64, Comment: "产品 id", Default: 0},
+		{Name: "user_id", Type: field.TypeInt64, Comment: "用户 id", Default: 0},
+	}
+	// OrdersTable holds the schema information for the "orders" table.
+	OrdersTable = &schema.Table{
+		Name:       "orders",
+		Columns:    OrdersColumns,
+		PrimaryKey: []*schema.Column{OrdersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "orders_products_orders",
+				Columns:    []*schema.Column{OrdersColumns[9]},
+				RefColumns: []*schema.Column{ProductsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "orders_users_orders",
+				Columns:    []*schema.Column{OrdersColumns[10]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// ProductsColumns holds the columns for the "products" table.
 	ProductsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Comment: "19 位雪花 ID"},
@@ -87,7 +121,7 @@ var (
 		{Name: "price", Type: field.TypeInt64, Comment: "单价", Default: 0},
 		{Name: "unit", Type: field.TypeString, Comment: "单价使用单位", Default: ""},
 		{Name: "produce_type", Type: field.TypeEnum, Comment: "产品类型", Enums: []string{"tea", "edible-fungi", "vegetable", "seedlings", "medicinal-materials", "grain-and-oil-crops", "fisheries", "animal-husbandry"}, Default: "tea"},
-		{Name: "business_id", Type: field.TypeInt64, Comment: "外键商户用户 id", Default: 0},
+		{Name: "business_id", Type: field.TypeInt64, Unique: true, Comment: "外键商户用户 id", Default: 0},
 	}
 	// ProductsTable holds the schema information for the "products" table.
 	ProductsTable = &schema.Table{
@@ -183,6 +217,7 @@ var (
 	Tables = []*schema.Table{
 		LoginRecordsTable,
 		MerchantsTable,
+		OrdersTable,
 		ProductsTable,
 		UsersTable,
 		VxSocialsTable,
@@ -194,6 +229,9 @@ func init() {
 	LoginRecordsTable.Annotation = &entsql.Annotation{}
 	MerchantsTable.ForeignKeys[0].RefTable = UsersTable
 	MerchantsTable.Annotation = &entsql.Annotation{}
+	OrdersTable.ForeignKeys[0].RefTable = ProductsTable
+	OrdersTable.ForeignKeys[1].RefTable = UsersTable
+	OrdersTable.Annotation = &entsql.Annotation{}
 	ProductsTable.ForeignKeys[0].RefTable = MerchantsTable
 	ProductsTable.Annotation = &entsql.Annotation{}
 	UsersTable.ForeignKeys[0].RefTable = UsersTable

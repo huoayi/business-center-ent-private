@@ -99,7 +99,7 @@ func (mq *MerchantQuery) QueryProducts() *ProductQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(merchant.Table, merchant.FieldID, selector),
 			sqlgraph.To(product.Table, product.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, merchant.ProductsTable, merchant.ProductsColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, merchant.ProductsTable, merchant.ProductsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -440,9 +440,8 @@ func (mq *MerchantQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Mer
 		}
 	}
 	if query := mq.withProducts; query != nil {
-		if err := mq.loadProducts(ctx, query, nodes,
-			func(n *Merchant) { n.Edges.Products = []*Product{} },
-			func(n *Merchant, e *Product) { n.Edges.Products = append(n.Edges.Products, e) }); err != nil {
+		if err := mq.loadProducts(ctx, query, nodes, nil,
+			func(n *Merchant, e *Product) { n.Edges.Products = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -484,9 +483,6 @@ func (mq *MerchantQuery) loadProducts(ctx context.Context, query *ProductQuery, 
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
 	}
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(product.FieldBusinessID)

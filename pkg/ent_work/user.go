@@ -72,9 +72,11 @@ type UserEdges struct {
 	Children []*User `json:"children,omitempty"`
 	// Merchants holds the value of the merchants edge.
 	Merchants []*Merchant `json:"merchants,omitempty"`
+	// Orders holds the value of the orders edge.
+	Orders []*Order `json:"orders,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // LoginRecordsOrErr returns the LoginRecords value or an error if the edge
@@ -122,6 +124,15 @@ func (e UserEdges) MerchantsOrErr() ([]*Merchant, error) {
 		return e.Merchants, nil
 	}
 	return nil, &NotLoadedError{edge: "merchants"}
+}
+
+// OrdersOrErr returns the Orders value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) OrdersOrErr() ([]*Order, error) {
+	if e.loadedTypes[5] {
+		return e.Orders, nil
+	}
+	return nil, &NotLoadedError{edge: "orders"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -302,6 +313,11 @@ func (u *User) QueryChildren() *UserQuery {
 // QueryMerchants queries the "merchants" edge of the User entity.
 func (u *User) QueryMerchants() *MerchantQuery {
 	return NewUserClient(u.config).QueryMerchants(u)
+}
+
+// QueryOrders queries the "orders" edge of the User entity.
+func (u *User) QueryOrders() *OrderQuery {
+	return NewUserClient(u.config).QueryOrders(u)
 }
 
 // Update returns a builder for updating this User.

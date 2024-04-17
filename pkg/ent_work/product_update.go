@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/enum"
@@ -209,6 +210,21 @@ func (pu *ProductUpdate) SetMerchant(m *Merchant) *ProductUpdate {
 	return pu.SetMerchantID(m.ID)
 }
 
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (pu *ProductUpdate) AddOrderIDs(ids ...int64) *ProductUpdate {
+	pu.mutation.AddOrderIDs(ids...)
+	return pu
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (pu *ProductUpdate) AddOrders(o ...*Order) *ProductUpdate {
+	ids := make([]int64, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return pu.AddOrderIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (pu *ProductUpdate) Mutation() *ProductMutation {
 	return pu.mutation
@@ -218,6 +234,27 @@ func (pu *ProductUpdate) Mutation() *ProductMutation {
 func (pu *ProductUpdate) ClearMerchant() *ProductUpdate {
 	pu.mutation.ClearMerchant()
 	return pu
+}
+
+// ClearOrders clears all "orders" edges to the Order entity.
+func (pu *ProductUpdate) ClearOrders() *ProductUpdate {
+	pu.mutation.ClearOrders()
+	return pu
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (pu *ProductUpdate) RemoveOrderIDs(ids ...int64) *ProductUpdate {
+	pu.mutation.RemoveOrderIDs(ids...)
+	return pu
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (pu *ProductUpdate) RemoveOrders(o ...*Order) *ProductUpdate {
+	ids := make([]int64, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return pu.RemoveOrderIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -328,7 +365,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -341,13 +378,58 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := pu.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if pu.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !pu.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -555,6 +637,21 @@ func (puo *ProductUpdateOne) SetMerchant(m *Merchant) *ProductUpdateOne {
 	return puo.SetMerchantID(m.ID)
 }
 
+// AddOrderIDs adds the "orders" edge to the Order entity by IDs.
+func (puo *ProductUpdateOne) AddOrderIDs(ids ...int64) *ProductUpdateOne {
+	puo.mutation.AddOrderIDs(ids...)
+	return puo
+}
+
+// AddOrders adds the "orders" edges to the Order entity.
+func (puo *ProductUpdateOne) AddOrders(o ...*Order) *ProductUpdateOne {
+	ids := make([]int64, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return puo.AddOrderIDs(ids...)
+}
+
 // Mutation returns the ProductMutation object of the builder.
 func (puo *ProductUpdateOne) Mutation() *ProductMutation {
 	return puo.mutation
@@ -564,6 +661,27 @@ func (puo *ProductUpdateOne) Mutation() *ProductMutation {
 func (puo *ProductUpdateOne) ClearMerchant() *ProductUpdateOne {
 	puo.mutation.ClearMerchant()
 	return puo
+}
+
+// ClearOrders clears all "orders" edges to the Order entity.
+func (puo *ProductUpdateOne) ClearOrders() *ProductUpdateOne {
+	puo.mutation.ClearOrders()
+	return puo
+}
+
+// RemoveOrderIDs removes the "orders" edge to Order entities by IDs.
+func (puo *ProductUpdateOne) RemoveOrderIDs(ids ...int64) *ProductUpdateOne {
+	puo.mutation.RemoveOrderIDs(ids...)
+	return puo
+}
+
+// RemoveOrders removes "orders" edges to Order entities.
+func (puo *ProductUpdateOne) RemoveOrders(o ...*Order) *ProductUpdateOne {
+	ids := make([]int64, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return puo.RemoveOrderIDs(ids...)
 }
 
 // Where appends a list predicates to the ProductUpdate builder.
@@ -704,7 +822,7 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if puo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -717,13 +835,58 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if nodes := puo.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(merchant.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if puo.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !puo.mutation.OrdersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   product.OrdersTable,
+			Columns: []string{product.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

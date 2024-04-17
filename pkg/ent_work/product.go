@@ -54,9 +54,11 @@ type Product struct {
 type ProductEdges struct {
 	// Merchant holds the value of the merchant edge.
 	Merchant *Merchant `json:"merchant,omitempty"`
+	// Orders holds the value of the orders edge.
+	Orders []*Order `json:"orders,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MerchantOrErr returns the Merchant value or an error if the edge
@@ -68,6 +70,15 @@ func (e ProductEdges) MerchantOrErr() (*Merchant, error) {
 		return nil, &NotFoundError{label: merchant.Label}
 	}
 	return nil, &NotLoadedError{edge: "merchant"}
+}
+
+// OrdersOrErr returns the Orders value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProductEdges) OrdersOrErr() ([]*Order, error) {
+	if e.loadedTypes[1] {
+		return e.Orders, nil
+	}
+	return nil, &NotLoadedError{edge: "orders"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -190,6 +201,11 @@ func (pr *Product) Value(name string) (ent.Value, error) {
 // QueryMerchant queries the "merchant" edge of the Product entity.
 func (pr *Product) QueryMerchant() *MerchantQuery {
 	return NewProductClient(pr.config).QueryMerchant(pr)
+}
+
+// QueryOrders queries the "orders" edge of the Product entity.
+func (pr *Product) QueryOrders() *OrderQuery {
+	return NewProductClient(pr.config).QueryOrders(pr)
 }
 
 // Update returns a builder for updating this Product.

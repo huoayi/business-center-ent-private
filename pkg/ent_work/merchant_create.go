@@ -198,19 +198,23 @@ func (mc *MerchantCreate) SetUser(u *User) *MerchantCreate {
 	return mc.SetUserID(u.ID)
 }
 
-// AddProductIDs adds the "products" edge to the Product entity by IDs.
-func (mc *MerchantCreate) AddProductIDs(ids ...int64) *MerchantCreate {
-	mc.mutation.AddProductIDs(ids...)
+// SetProductsID sets the "products" edge to the Product entity by ID.
+func (mc *MerchantCreate) SetProductsID(id int64) *MerchantCreate {
+	mc.mutation.SetProductsID(id)
 	return mc
 }
 
-// AddProducts adds the "products" edges to the Product entity.
-func (mc *MerchantCreate) AddProducts(p ...*Product) *MerchantCreate {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableProductsID sets the "products" edge to the Product entity by ID if the given value is not nil.
+func (mc *MerchantCreate) SetNillableProductsID(id *int64) *MerchantCreate {
+	if id != nil {
+		mc = mc.SetProductsID(*id)
 	}
-	return mc.AddProductIDs(ids...)
+	return mc
+}
+
+// SetProducts sets the "products" edge to the Product entity.
+func (mc *MerchantCreate) SetProducts(p *Product) *MerchantCreate {
+	return mc.SetProductsID(p.ID)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -433,7 +437,7 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 	}
 	if nodes := mc.mutation.ProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   merchant.ProductsTable,
 			Columns: []string{merchant.ProductsColumn},

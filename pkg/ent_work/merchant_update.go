@@ -190,19 +190,23 @@ func (mu *MerchantUpdate) SetUser(u *User) *MerchantUpdate {
 	return mu.SetUserID(u.ID)
 }
 
-// AddProductIDs adds the "products" edge to the Product entity by IDs.
-func (mu *MerchantUpdate) AddProductIDs(ids ...int64) *MerchantUpdate {
-	mu.mutation.AddProductIDs(ids...)
+// SetProductsID sets the "products" edge to the Product entity by ID.
+func (mu *MerchantUpdate) SetProductsID(id int64) *MerchantUpdate {
+	mu.mutation.SetProductsID(id)
 	return mu
 }
 
-// AddProducts adds the "products" edges to the Product entity.
-func (mu *MerchantUpdate) AddProducts(p ...*Product) *MerchantUpdate {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableProductsID sets the "products" edge to the Product entity by ID if the given value is not nil.
+func (mu *MerchantUpdate) SetNillableProductsID(id *int64) *MerchantUpdate {
+	if id != nil {
+		mu = mu.SetProductsID(*id)
 	}
-	return mu.AddProductIDs(ids...)
+	return mu
+}
+
+// SetProducts sets the "products" edge to the Product entity.
+func (mu *MerchantUpdate) SetProducts(p *Product) *MerchantUpdate {
+	return mu.SetProductsID(p.ID)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -216,25 +220,10 @@ func (mu *MerchantUpdate) ClearUser() *MerchantUpdate {
 	return mu
 }
 
-// ClearProducts clears all "products" edges to the Product entity.
+// ClearProducts clears the "products" edge to the Product entity.
 func (mu *MerchantUpdate) ClearProducts() *MerchantUpdate {
 	mu.mutation.ClearProducts()
 	return mu
-}
-
-// RemoveProductIDs removes the "products" edge to Product entities by IDs.
-func (mu *MerchantUpdate) RemoveProductIDs(ids ...int64) *MerchantUpdate {
-	mu.mutation.RemoveProductIDs(ids...)
-	return mu
-}
-
-// RemoveProducts removes "products" edges to Product entities.
-func (mu *MerchantUpdate) RemoveProducts(p ...*Product) *MerchantUpdate {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return mu.RemoveProductIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -371,7 +360,7 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if mu.mutation.ProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   merchant.ProductsTable,
 			Columns: []string{merchant.ProductsColumn},
@@ -379,28 +368,12 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeInt64),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mu.mutation.RemovedProductsIDs(); len(nodes) > 0 && !mu.mutation.ProductsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.ProductsTable,
-			Columns: []string{merchant.ProductsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := mu.mutation.ProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   merchant.ProductsTable,
 			Columns: []string{merchant.ProductsColumn},
@@ -594,19 +567,23 @@ func (muo *MerchantUpdateOne) SetUser(u *User) *MerchantUpdateOne {
 	return muo.SetUserID(u.ID)
 }
 
-// AddProductIDs adds the "products" edge to the Product entity by IDs.
-func (muo *MerchantUpdateOne) AddProductIDs(ids ...int64) *MerchantUpdateOne {
-	muo.mutation.AddProductIDs(ids...)
+// SetProductsID sets the "products" edge to the Product entity by ID.
+func (muo *MerchantUpdateOne) SetProductsID(id int64) *MerchantUpdateOne {
+	muo.mutation.SetProductsID(id)
 	return muo
 }
 
-// AddProducts adds the "products" edges to the Product entity.
-func (muo *MerchantUpdateOne) AddProducts(p ...*Product) *MerchantUpdateOne {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetNillableProductsID sets the "products" edge to the Product entity by ID if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillableProductsID(id *int64) *MerchantUpdateOne {
+	if id != nil {
+		muo = muo.SetProductsID(*id)
 	}
-	return muo.AddProductIDs(ids...)
+	return muo
+}
+
+// SetProducts sets the "products" edge to the Product entity.
+func (muo *MerchantUpdateOne) SetProducts(p *Product) *MerchantUpdateOne {
+	return muo.SetProductsID(p.ID)
 }
 
 // Mutation returns the MerchantMutation object of the builder.
@@ -620,25 +597,10 @@ func (muo *MerchantUpdateOne) ClearUser() *MerchantUpdateOne {
 	return muo
 }
 
-// ClearProducts clears all "products" edges to the Product entity.
+// ClearProducts clears the "products" edge to the Product entity.
 func (muo *MerchantUpdateOne) ClearProducts() *MerchantUpdateOne {
 	muo.mutation.ClearProducts()
 	return muo
-}
-
-// RemoveProductIDs removes the "products" edge to Product entities by IDs.
-func (muo *MerchantUpdateOne) RemoveProductIDs(ids ...int64) *MerchantUpdateOne {
-	muo.mutation.RemoveProductIDs(ids...)
-	return muo
-}
-
-// RemoveProducts removes "products" edges to Product entities.
-func (muo *MerchantUpdateOne) RemoveProducts(p ...*Product) *MerchantUpdateOne {
-	ids := make([]int64, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return muo.RemoveProductIDs(ids...)
 }
 
 // Where appends a list predicates to the MerchantUpdate builder.
@@ -805,7 +767,7 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if muo.mutation.ProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   merchant.ProductsTable,
 			Columns: []string{merchant.ProductsColumn},
@@ -813,28 +775,12 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeInt64),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := muo.mutation.RemovedProductsIDs(); len(nodes) > 0 && !muo.mutation.ProductsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   merchant.ProductsTable,
-			Columns: []string{merchant.ProductsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(product.FieldID, field.TypeInt64),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := muo.mutation.ProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   merchant.ProductsTable,
 			Columns: []string{merchant.ProductsColumn},

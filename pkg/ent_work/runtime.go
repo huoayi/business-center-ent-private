@@ -7,6 +7,7 @@ import (
 
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/loginrecord"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/merchant"
+	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/schema"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
@@ -115,6 +116,57 @@ func init() {
 	merchantDescID := merchantMixinFields0[0].Descriptor()
 	// merchant.DefaultID holds the default value on creation for the id field.
 	merchant.DefaultID = merchantDescID.Default.(func() int64)
+	orderMixin := schema.Order{}.Mixin()
+	orderMixinFields0 := orderMixin[0].Fields()
+	_ = orderMixinFields0
+	orderFields := schema.Order{}.Fields()
+	_ = orderFields
+	// orderDescCreatedBy is the schema descriptor for created_by field.
+	orderDescCreatedBy := orderMixinFields0[1].Descriptor()
+	// order.DefaultCreatedBy holds the default value on creation for the created_by field.
+	order.DefaultCreatedBy = orderDescCreatedBy.Default.(int64)
+	// orderDescUpdatedBy is the schema descriptor for updated_by field.
+	orderDescUpdatedBy := orderMixinFields0[2].Descriptor()
+	// order.DefaultUpdatedBy holds the default value on creation for the updated_by field.
+	order.DefaultUpdatedBy = orderDescUpdatedBy.Default.(int64)
+	// orderDescCreatedAt is the schema descriptor for created_at field.
+	orderDescCreatedAt := orderMixinFields0[3].Descriptor()
+	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
+	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	// orderDescUpdatedAt is the schema descriptor for updated_at field.
+	orderDescUpdatedAt := orderMixinFields0[4].Descriptor()
+	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
+	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderDescDeletedAt is the schema descriptor for deleted_at field.
+	orderDescDeletedAt := orderMixinFields0[5].Descriptor()
+	// order.DefaultDeletedAt holds the default value on creation for the deleted_at field.
+	order.DefaultDeletedAt = orderDescDeletedAt.Default.(time.Time)
+	// orderDescCount is the schema descriptor for count field.
+	orderDescCount := orderFields[0].Descriptor()
+	// order.DefaultCount holds the default value on creation for the count field.
+	order.DefaultCount = orderDescCount.Default.(int64)
+	// orderDescAmount is the schema descriptor for amount field.
+	orderDescAmount := orderFields[1].Descriptor()
+	// order.DefaultAmount holds the default value on creation for the amount field.
+	order.DefaultAmount = orderDescAmount.Default.(int64)
+	// orderDescAddress is the schema descriptor for address field.
+	orderDescAddress := orderFields[2].Descriptor()
+	// order.DefaultAddress holds the default value on creation for the address field.
+	order.DefaultAddress = orderDescAddress.Default.(string)
+	// orderDescProductsID is the schema descriptor for products_id field.
+	orderDescProductsID := orderFields[3].Descriptor()
+	// order.DefaultProductsID holds the default value on creation for the products_id field.
+	order.DefaultProductsID = orderDescProductsID.Default.(int64)
+	// orderDescUserID is the schema descriptor for user_id field.
+	orderDescUserID := orderFields[4].Descriptor()
+	// order.DefaultUserID holds the default value on creation for the user_id field.
+	order.DefaultUserID = orderDescUserID.Default.(int64)
+	// orderDescID is the schema descriptor for id field.
+	orderDescID := orderMixinFields0[0].Descriptor()
+	// order.DefaultID holds the default value on creation for the id field.
+	order.DefaultID = orderDescID.Default.(func() int64)
 	productMixin := schema.Product{}.Mixin()
 	productMixinFields0 := productMixin[0].Fields()
 	_ = productMixinFields0

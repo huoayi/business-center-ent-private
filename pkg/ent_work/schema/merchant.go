@@ -26,7 +26,7 @@ func (Merchant) Edges() []ent.Edge {
 	return []ent.Edge{
 		// 逻辑外键
 		edge.From("user", User.Type).Ref("merchants").Field("user_id").Unique().Required(),
-		edge.To("products", Product.Type),
+		edge.To("products", Product.Type).Unique(),
 	}
 }
 
