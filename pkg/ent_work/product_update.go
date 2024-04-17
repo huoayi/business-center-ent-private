@@ -199,6 +199,27 @@ func (pu *ProductUpdate) SetNillableProduceType(et *enum.ProduceType) *ProductUp
 	return pu
 }
 
+// SetCount sets the "count" field.
+func (pu *ProductUpdate) SetCount(i int64) *ProductUpdate {
+	pu.mutation.ResetCount()
+	pu.mutation.SetCount(i)
+	return pu
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableCount(i *int64) *ProductUpdate {
+	if i != nil {
+		pu.SetCount(*i)
+	}
+	return pu
+}
+
+// AddCount adds i to the "count" field.
+func (pu *ProductUpdate) AddCount(i int64) *ProductUpdate {
+	pu.mutation.AddCount(i)
+	return pu
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
 func (pu *ProductUpdate) SetMerchantID(id int64) *ProductUpdate {
 	pu.mutation.SetMerchantID(id)
@@ -362,6 +383,12 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.ProduceType(); ok {
 		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
+	}
+	if value, ok := pu.mutation.Count(); ok {
+		_spec.SetField(product.FieldCount, field.TypeInt64, value)
+	}
+	if value, ok := pu.mutation.AddedCount(); ok {
+		_spec.AddField(product.FieldCount, field.TypeInt64, value)
 	}
 	if pu.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -626,6 +653,27 @@ func (puo *ProductUpdateOne) SetNillableProduceType(et *enum.ProduceType) *Produ
 	return puo
 }
 
+// SetCount sets the "count" field.
+func (puo *ProductUpdateOne) SetCount(i int64) *ProductUpdateOne {
+	puo.mutation.ResetCount()
+	puo.mutation.SetCount(i)
+	return puo
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableCount(i *int64) *ProductUpdateOne {
+	if i != nil {
+		puo.SetCount(*i)
+	}
+	return puo
+}
+
+// AddCount adds i to the "count" field.
+func (puo *ProductUpdateOne) AddCount(i int64) *ProductUpdateOne {
+	puo.mutation.AddCount(i)
+	return puo
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
 func (puo *ProductUpdateOne) SetMerchantID(id int64) *ProductUpdateOne {
 	puo.mutation.SetMerchantID(id)
@@ -819,6 +867,12 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if value, ok := puo.mutation.ProduceType(); ok {
 		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
+	}
+	if value, ok := puo.mutation.Count(); ok {
+		_spec.SetField(product.FieldCount, field.TypeInt64, value)
+	}
+	if value, ok := puo.mutation.AddedCount(); ok {
+		_spec.AddField(product.FieldCount, field.TypeInt64, value)
 	}
 	if puo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{

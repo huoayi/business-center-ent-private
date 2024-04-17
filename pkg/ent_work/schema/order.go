@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 type Order struct {
@@ -17,6 +18,7 @@ func (Order) Fields() []ent.Field {
 		field.String("address").Default("").StructTag(`json:"address"`).Comment("收货地址"),
 		field.Int64("products_id").StructTag(`json:"merchant_id"`).Default(0).Comment("产品 id"),
 		field.Int64("user_id").StructTag(`json:"user_id"`).Default(0).Comment("用户 id"),
+		field.Enum("status").GoType(enum.Canceled).StructTag(`json:"status"`).Default(string(enum.Canceled)).Comment("订单"),
 	}
 }
 

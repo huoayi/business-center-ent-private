@@ -111,6 +111,11 @@ func BusinessID(v int64) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldBusinessID, v))
 }
 
+// Count applies equality check predicate on the "count" field. It's identical to CountEQ.
+func Count(v int64) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldCount, v))
+}
+
 // CreatedByEQ applies the EQ predicate on the "created_by" field.
 func CreatedByEQ(v int64) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldCreatedBy, v))
@@ -659,6 +664,46 @@ func ProduceTypeNotIn(vs ...enum.ProduceType) predicate.Product {
 		v[i] = vs[i]
 	}
 	return predicate.Product(sql.FieldNotIn(FieldProduceType, v...))
+}
+
+// CountEQ applies the EQ predicate on the "count" field.
+func CountEQ(v int64) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldCount, v))
+}
+
+// CountNEQ applies the NEQ predicate on the "count" field.
+func CountNEQ(v int64) predicate.Product {
+	return predicate.Product(sql.FieldNEQ(FieldCount, v))
+}
+
+// CountIn applies the In predicate on the "count" field.
+func CountIn(vs ...int64) predicate.Product {
+	return predicate.Product(sql.FieldIn(FieldCount, vs...))
+}
+
+// CountNotIn applies the NotIn predicate on the "count" field.
+func CountNotIn(vs ...int64) predicate.Product {
+	return predicate.Product(sql.FieldNotIn(FieldCount, vs...))
+}
+
+// CountGT applies the GT predicate on the "count" field.
+func CountGT(v int64) predicate.Product {
+	return predicate.Product(sql.FieldGT(FieldCount, v))
+}
+
+// CountGTE applies the GTE predicate on the "count" field.
+func CountGTE(v int64) predicate.Product {
+	return predicate.Product(sql.FieldGTE(FieldCount, v))
+}
+
+// CountLT applies the LT predicate on the "count" field.
+func CountLT(v int64) predicate.Product {
+	return predicate.Product(sql.FieldLT(FieldCount, v))
+}
+
+// CountLTE applies the LTE predicate on the "count" field.
+func CountLTE(v int64) predicate.Product {
+	return predicate.Product(sql.FieldLTE(FieldCount, v))
 }
 
 // HasMerchant applies the HasEdge predicate on the "merchant" edge.

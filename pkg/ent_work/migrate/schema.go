@@ -84,6 +84,7 @@ var (
 		{Name: "count", Type: field.TypeInt64, Comment: "数量，按照商品计量单位计算", Default: 0},
 		{Name: "amount", Type: field.TypeInt64, Comment: "总价", Default: 0},
 		{Name: "address", Type: field.TypeString, Comment: "收货地址", Default: ""},
+		{Name: "status", Type: field.TypeEnum, Comment: "订单", Enums: []string{"canceled", "created", "Payed", "succeed"}, Default: "canceled"},
 		{Name: "products_id", Type: field.TypeInt64, Comment: "产品 id", Default: 0},
 		{Name: "user_id", Type: field.TypeInt64, Comment: "用户 id", Default: 0},
 	}
@@ -95,13 +96,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "orders_products_orders",
-				Columns:    []*schema.Column{OrdersColumns[9]},
+				Columns:    []*schema.Column{OrdersColumns[10]},
 				RefColumns: []*schema.Column{ProductsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "orders_users_orders",
-				Columns:    []*schema.Column{OrdersColumns[10]},
+				Columns:    []*schema.Column{OrdersColumns[11]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -121,6 +122,7 @@ var (
 		{Name: "price", Type: field.TypeInt64, Comment: "单价", Default: 0},
 		{Name: "unit", Type: field.TypeString, Comment: "单价使用单位", Default: ""},
 		{Name: "produce_type", Type: field.TypeEnum, Comment: "产品类型", Enums: []string{"tea", "edible-fungi", "vegetable", "seedlings", "medicinal-materials", "grain-and-oil-crops", "fisheries", "animal-husbandry"}, Default: "tea"},
+		{Name: "count", Type: field.TypeInt64, Comment: "库存", Default: 0},
 		{Name: "business_id", Type: field.TypeInt64, Unique: true, Comment: "外键商户用户 id", Default: 0},
 	}
 	// ProductsTable holds the schema information for the "products" table.
@@ -131,7 +133,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "products_merchants_products",
-				Columns:    []*schema.Column{ProductsColumns[12]},
+				Columns:    []*schema.Column{ProductsColumns[13]},
 				RefColumns: []*schema.Column{MerchantsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

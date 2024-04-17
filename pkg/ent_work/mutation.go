@@ -2030,6 +2030,7 @@ type OrderMutation struct {
 	amount          *int64
 	addamount       *int64
 	address         *string
+	status          *enum.OrderStatus
 	clearedFields   map[string]struct{}
 	products        *int64
 	clearedproducts bool
@@ -2584,6 +2585,42 @@ func (m *OrderMutation) ResetUserID() {
 	m.user = nil
 }
 
+// SetStatus sets the "status" field.
+func (m *OrderMutation) SetStatus(es enum.OrderStatus) {
+	m.status = &es
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *OrderMutation) Status() (r enum.OrderStatus, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Order entity.
+// If the Order object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrderMutation) OldStatus(ctx context.Context) (v enum.OrderStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *OrderMutation) ResetStatus() {
+	m.status = nil
+}
+
 // ClearProducts clears the "products" edge to the Product entity.
 func (m *OrderMutation) ClearProducts() {
 	m.clearedproducts = true
@@ -2672,7 +2709,7 @@ func (m *OrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrderMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_by != nil {
 		fields = append(fields, order.FieldCreatedBy)
 	}
@@ -2703,6 +2740,9 @@ func (m *OrderMutation) Fields() []string {
 	if m.user != nil {
 		fields = append(fields, order.FieldUserID)
 	}
+	if m.status != nil {
+		fields = append(fields, order.FieldStatus)
+	}
 	return fields
 }
 
@@ -2731,6 +2771,8 @@ func (m *OrderMutation) Field(name string) (ent.Value, bool) {
 		return m.ProductsID()
 	case order.FieldUserID:
 		return m.UserID()
+	case order.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -2760,6 +2802,8 @@ func (m *OrderMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldProductsID(ctx)
 	case order.FieldUserID:
 		return m.OldUserID(ctx)
+	case order.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown Order field %s", name)
 }
@@ -2838,6 +2882,13 @@ func (m *OrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case order.FieldStatus:
+		v, ok := value.(enum.OrderStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)
@@ -2969,6 +3020,9 @@ func (m *OrderMutation) ResetField(name string) error {
 	case order.FieldUserID:
 		m.ResetUserID()
 		return nil
+	case order.FieldStatus:
+		m.ResetStatus()
+		return nil
 	}
 	return fmt.Errorf("unknown Order field %s", name)
 }
@@ -3085,6 +3139,8 @@ type ProductMutation struct {
 	addprice        *int64
 	unit            *string
 	produce_type    *enum.ProduceType
+	count           *int64
+	addcount        *int64
 	clearedFields   map[string]struct{}
 	merchant        *int64
 	clearedmerchant bool
@@ -3692,6 +3748,62 @@ func (m *ProductMutation) ResetProduceType() {
 	m.produce_type = nil
 }
 
+// SetCount sets the "count" field.
+func (m *ProductMutation) SetCount(i int64) {
+	m.count = &i
+	m.addcount = nil
+}
+
+// Count returns the value of the "count" field in the mutation.
+func (m *ProductMutation) Count() (r int64, exists bool) {
+	v := m.count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCount returns the old "count" field's value of the Product entity.
+// If the Product object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ProductMutation) OldCount(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCount: %w", err)
+	}
+	return oldValue.Count, nil
+}
+
+// AddCount adds i to the "count" field.
+func (m *ProductMutation) AddCount(i int64) {
+	if m.addcount != nil {
+		*m.addcount += i
+	} else {
+		m.addcount = &i
+	}
+}
+
+// AddedCount returns the value that was added to the "count" field in this mutation.
+func (m *ProductMutation) AddedCount() (r int64, exists bool) {
+	v := m.addcount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCount resets all changes to the "count" field.
+func (m *ProductMutation) ResetCount() {
+	m.count = nil
+	m.addcount = nil
+}
+
 // SetMerchantID sets the "merchant" edge to the Merchant entity by id.
 func (m *ProductMutation) SetMerchantID(id int64) {
 	m.merchant = &id
@@ -3820,7 +3932,7 @@ func (m *ProductMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ProductMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.created_by != nil {
 		fields = append(fields, product.FieldCreatedBy)
 	}
@@ -3857,6 +3969,9 @@ func (m *ProductMutation) Fields() []string {
 	if m.produce_type != nil {
 		fields = append(fields, product.FieldProduceType)
 	}
+	if m.count != nil {
+		fields = append(fields, product.FieldCount)
+	}
 	return fields
 }
 
@@ -3889,6 +4004,8 @@ func (m *ProductMutation) Field(name string) (ent.Value, bool) {
 		return m.BusinessID()
 	case product.FieldProduceType:
 		return m.ProduceType()
+	case product.FieldCount:
+		return m.Count()
 	}
 	return nil, false
 }
@@ -3922,6 +4039,8 @@ func (m *ProductMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldBusinessID(ctx)
 	case product.FieldProduceType:
 		return m.OldProduceType(ctx)
+	case product.FieldCount:
+		return m.OldCount(ctx)
 	}
 	return nil, fmt.Errorf("unknown Product field %s", name)
 }
@@ -4015,6 +4134,13 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetProduceType(v)
 		return nil
+	case product.FieldCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Product field %s", name)
 }
@@ -4032,6 +4158,9 @@ func (m *ProductMutation) AddedFields() []string {
 	if m.addprice != nil {
 		fields = append(fields, product.FieldPrice)
 	}
+	if m.addcount != nil {
+		fields = append(fields, product.FieldCount)
+	}
 	return fields
 }
 
@@ -4046,6 +4175,8 @@ func (m *ProductMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedUpdatedBy()
 	case product.FieldPrice:
 		return m.AddedPrice()
+	case product.FieldCount:
+		return m.AddedCount()
 	}
 	return nil, false
 }
@@ -4075,6 +4206,13 @@ func (m *ProductMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddPrice(v)
+		return nil
+	case product.FieldCount:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCount(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Product numeric field %s", name)
@@ -4138,6 +4276,9 @@ func (m *ProductMutation) ResetField(name string) error {
 		return nil
 	case product.FieldProduceType:
 		m.ResetProduceType()
+		return nil
+	case product.FieldCount:
+		m.ResetCount()
 		return nil
 	}
 	return fmt.Errorf("unknown Product field %s", name)

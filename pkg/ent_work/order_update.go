@@ -15,6 +15,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // OrderUpdate is the builder for updating Order entities.
@@ -177,6 +178,20 @@ func (ou *OrderUpdate) SetNillableUserID(i *int64) *OrderUpdate {
 	return ou
 }
 
+// SetStatus sets the "status" field.
+func (ou *OrderUpdate) SetStatus(es enum.OrderStatus) *OrderUpdate {
+	ou.mutation.SetStatus(es)
+	return ou
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ou *OrderUpdate) SetNillableStatus(es *enum.OrderStatus) *OrderUpdate {
+	if es != nil {
+		ou.SetStatus(*es)
+	}
+	return ou
+}
+
 // SetProducts sets the "products" edge to the Product entity.
 func (ou *OrderUpdate) SetProducts(p *Product) *OrderUpdate {
 	return ou.SetProductsID(p.ID)
@@ -242,6 +257,11 @@ func (ou *OrderUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ou *OrderUpdate) check() error {
+	if v, ok := ou.mutation.Status(); ok {
+		if err := order.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent_work: validator failed for field "Order.status": %w`, err)}
+		}
+	}
 	if _, ok := ou.mutation.ProductsID(); ou.mutation.ProductsCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Order.products"`)
 	}
@@ -301,6 +321,9 @@ func (ou *OrderUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.Address(); ok {
 		_spec.SetField(order.FieldAddress, field.TypeString, value)
+	}
+	if value, ok := ou.mutation.Status(); ok {
+		_spec.SetField(order.FieldStatus, field.TypeEnum, value)
 	}
 	if ou.mutation.ProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -528,6 +551,20 @@ func (ouo *OrderUpdateOne) SetNillableUserID(i *int64) *OrderUpdateOne {
 	return ouo
 }
 
+// SetStatus sets the "status" field.
+func (ouo *OrderUpdateOne) SetStatus(es enum.OrderStatus) *OrderUpdateOne {
+	ouo.mutation.SetStatus(es)
+	return ouo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ouo *OrderUpdateOne) SetNillableStatus(es *enum.OrderStatus) *OrderUpdateOne {
+	if es != nil {
+		ouo.SetStatus(*es)
+	}
+	return ouo
+}
+
 // SetProducts sets the "products" edge to the Product entity.
 func (ouo *OrderUpdateOne) SetProducts(p *Product) *OrderUpdateOne {
 	return ouo.SetProductsID(p.ID)
@@ -606,6 +643,11 @@ func (ouo *OrderUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ouo *OrderUpdateOne) check() error {
+	if v, ok := ouo.mutation.Status(); ok {
+		if err := order.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent_work: validator failed for field "Order.status": %w`, err)}
+		}
+	}
 	if _, ok := ouo.mutation.ProductsID(); ouo.mutation.ProductsCleared() && !ok {
 		return errors.New(`ent_work: clearing a required unique edge "Order.products"`)
 	}
@@ -682,6 +724,9 @@ func (ouo *OrderUpdateOne) sqlSave(ctx context.Context) (_node *Order, err error
 	}
 	if value, ok := ouo.mutation.Address(); ok {
 		_spec.SetField(order.FieldAddress, field.TypeString, value)
+	}
+	if value, ok := ouo.mutation.Status(); ok {
+		_spec.SetField(order.FieldStatus, field.TypeEnum, value)
 	}
 	if ouo.mutation.ProductsCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -44,6 +44,8 @@ type Product struct {
 	BusinessID int64 `json:"merchant_id"`
 	// 产品类型
 	ProduceType enum.ProduceType `json:"produce_type"`
+	// 库存
+	Count int64 `json:"count"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ProductQuery when eager-loading is set.
 	Edges        ProductEdges `json:"edges"`
@@ -86,7 +88,7 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldPrice, product.FieldBusinessID:
+		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldPrice, product.FieldBusinessID, product.FieldCount:
 			values[i] = new(sql.NullInt64)
 		case product.FieldProductName, product.FieldJpgURL, product.FieldComment, product.FieldUnit, product.FieldProduceType:
 			values[i] = new(sql.NullString)
@@ -185,6 +187,12 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.ProduceType = enum.ProduceType(value.String)
 			}
+		case product.FieldCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field count", values[i])
+			} else if value.Valid {
+				pr.Count = value.Int64
+			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
 		}
@@ -266,6 +274,9 @@ func (pr *Product) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("produce_type=")
 	builder.WriteString(fmt.Sprintf("%v", pr.ProduceType))
+	builder.WriteString(", ")
+	builder.WriteString("count=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Count))
 	builder.WriteByte(')')
 	return builder.String()
 }

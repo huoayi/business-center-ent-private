@@ -14,6 +14,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // OrderCreate is the builder for creating a Order entity.
@@ -164,6 +165,20 @@ func (oc *OrderCreate) SetNillableUserID(i *int64) *OrderCreate {
 	return oc
 }
 
+// SetStatus sets the "status" field.
+func (oc *OrderCreate) SetStatus(es enum.OrderStatus) *OrderCreate {
+	oc.mutation.SetStatus(es)
+	return oc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (oc *OrderCreate) SetNillableStatus(es *enum.OrderStatus) *OrderCreate {
+	if es != nil {
+		oc.SetStatus(*es)
+	}
+	return oc
+}
+
 // SetID sets the "id" field.
 func (oc *OrderCreate) SetID(i int64) *OrderCreate {
 	oc.mutation.SetID(i)
@@ -263,6 +278,10 @@ func (oc *OrderCreate) defaults() {
 		v := order.DefaultUserID
 		oc.mutation.SetUserID(v)
 	}
+	if _, ok := oc.mutation.Status(); !ok {
+		v := order.DefaultStatus
+		oc.mutation.SetStatus(v)
+	}
 	if _, ok := oc.mutation.ID(); !ok {
 		v := order.DefaultID()
 		oc.mutation.SetID(v)
@@ -300,6 +319,14 @@ func (oc *OrderCreate) check() error {
 	}
 	if _, ok := oc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent_work: missing required field "Order.user_id"`)}
+	}
+	if _, ok := oc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent_work: missing required field "Order.status"`)}
+	}
+	if v, ok := oc.mutation.Status(); ok {
+		if err := order.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent_work: validator failed for field "Order.status": %w`, err)}
+		}
 	}
 	if _, ok := oc.mutation.ProductsID(); !ok {
 		return &ValidationError{Name: "products", err: errors.New(`ent_work: missing required edge "Order.products"`)}
@@ -371,6 +398,10 @@ func (oc *OrderCreate) createSpec() (*Order, *sqlgraph.CreateSpec) {
 	if value, ok := oc.mutation.Address(); ok {
 		_spec.SetField(order.FieldAddress, field.TypeString, value)
 		_node.Address = value
+	}
+	if value, ok := oc.mutation.Status(); ok {
+		_spec.SetField(order.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	if nodes := oc.mutation.ProductsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -590,6 +621,18 @@ func (u *OrderUpsert) UpdateUserID() *OrderUpsert {
 	return u
 }
 
+// SetStatus sets the "status" field.
+func (u *OrderUpsert) SetStatus(v enum.OrderStatus) *OrderUpsert {
+	u.Set(order.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *OrderUpsert) UpdateStatus() *OrderUpsert {
+	u.SetExcluded(order.FieldStatus)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -792,6 +835,20 @@ func (u *OrderUpsertOne) SetUserID(v int64) *OrderUpsertOne {
 func (u *OrderUpsertOne) UpdateUserID() *OrderUpsertOne {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *OrderUpsertOne) SetStatus(v enum.OrderStatus) *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *OrderUpsertOne) UpdateStatus() *OrderUpsertOne {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateStatus()
 	})
 }
 
@@ -1163,6 +1220,20 @@ func (u *OrderUpsertBulk) SetUserID(v int64) *OrderUpsertBulk {
 func (u *OrderUpsertBulk) UpdateUserID() *OrderUpsertBulk {
 	return u.Update(func(s *OrderUpsert) {
 		s.UpdateUserID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *OrderUpsertBulk) SetStatus(v enum.OrderStatus) *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *OrderUpsertBulk) UpdateStatus() *OrderUpsertBulk {
+	return u.Update(func(s *OrderUpsert) {
+		s.UpdateStatus()
 	})
 }
 

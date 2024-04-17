@@ -3,10 +3,12 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 const (
@@ -34,6 +36,8 @@ const (
 	FieldProductsID = "products_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 	// EdgeProducts holds the string denoting the products edge name in mutations.
 	EdgeProducts = "products"
 	// EdgeUser holds the string denoting the user edge name in mutations.
@@ -69,6 +73,7 @@ var Columns = []string{
 	FieldAddress,
 	FieldProductsID,
 	FieldUserID,
+	FieldStatus,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -107,6 +112,18 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() int64
 )
+
+const DefaultStatus enum.OrderStatus = "canceled"
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s enum.OrderStatus) error {
+	switch s {
+	case "canceled", "created", "Payed", "succeed":
+		return nil
+	default:
+		return fmt.Errorf("order: invalid enum value for status field: %q", s)
+	}
+}
 
 // OrderOption defines the ordering options for the Order queries.
 type OrderOption func(*sql.Selector)
@@ -164,6 +181,11 @@ func ByProductsID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
 // ByProductsField orders the results by products field.

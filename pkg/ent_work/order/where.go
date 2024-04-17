@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/predicate"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // ID filters vertices based on their ID field.
@@ -488,6 +489,36 @@ func UserIDIn(vs ...int64) predicate.Order {
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...int64) predicate.Order {
 	return predicate.Order(sql.FieldNotIn(FieldUserID, vs...))
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v enum.OrderStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldEQ(FieldStatus, vc))
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v enum.OrderStatus) predicate.Order {
+	vc := v
+	return predicate.Order(sql.FieldNEQ(FieldStatus, vc))
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...enum.OrderStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldIn(FieldStatus, v...))
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...enum.OrderStatus) predicate.Order {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Order(sql.FieldNotIn(FieldStatus, v...))
 }
 
 // HasProducts applies the HasEdge predicate on the "products" edge.

@@ -12,6 +12,7 @@ import (
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/order"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/product"
 	"github.com/huoayi/business-center-ent-private/pkg/ent_work/user"
+	"github.com/huoayi/business-center-ent-private/pkg/enum"
 )
 
 // Order is the model entity for the Order schema.
@@ -40,6 +41,8 @@ type Order struct {
 	ProductsID int64 `json:"merchant_id"`
 	// 用户 id
 	UserID int64 `json:"user_id"`
+	// 订单
+	Status enum.OrderStatus `json:"status"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrderQuery when eager-loading is set.
 	Edges        OrderEdges `json:"edges"`
@@ -86,7 +89,7 @@ func (*Order) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case order.FieldID, order.FieldCreatedBy, order.FieldUpdatedBy, order.FieldCount, order.FieldAmount, order.FieldProductsID, order.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case order.FieldAddress:
+		case order.FieldAddress, order.FieldStatus:
 			values[i] = new(sql.NullString)
 		case order.FieldCreatedAt, order.FieldUpdatedAt, order.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -171,6 +174,12 @@ func (o *Order) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.UserID = value.Int64
 			}
+		case order.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				o.Status = enum.OrderStatus(value.String)
+			}
 		default:
 			o.selectValues.Set(columns[i], values[i])
 		}
@@ -246,6 +255,9 @@ func (o *Order) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.UserID))
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", o.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

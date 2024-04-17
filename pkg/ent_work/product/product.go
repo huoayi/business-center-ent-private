@@ -40,6 +40,8 @@ const (
 	FieldBusinessID = "business_id"
 	// FieldProduceType holds the string denoting the produce_type field in the database.
 	FieldProduceType = "produce_type"
+	// FieldCount holds the string denoting the count field in the database.
+	FieldCount = "count"
 	// EdgeMerchant holds the string denoting the merchant edge name in mutations.
 	EdgeMerchant = "merchant"
 	// EdgeOrders holds the string denoting the orders edge name in mutations.
@@ -77,6 +79,7 @@ var Columns = []string{
 	FieldUnit,
 	FieldBusinessID,
 	FieldProduceType,
+	FieldCount,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -114,6 +117,8 @@ var (
 	DefaultUnit string
 	// DefaultBusinessID holds the default value on creation for the "business_id" field.
 	DefaultBusinessID int64
+	// DefaultCount holds the default value on creation for the "count" field.
+	DefaultCount int64
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() int64
 )
@@ -196,6 +201,11 @@ func ByBusinessID(opts ...sql.OrderTermOption) OrderOption {
 // ByProduceType orders the results by the produce_type field.
 func ByProduceType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProduceType, opts...).ToFunc()
+}
+
+// ByCount orders the results by the count field.
+func ByCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCount, opts...).ToFunc()
 }
 
 // ByMerchantField orders the results by merchant field.

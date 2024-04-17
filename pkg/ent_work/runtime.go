@@ -218,6 +218,10 @@ func init() {
 	productDescBusinessID := productFields[5].Descriptor()
 	// product.DefaultBusinessID holds the default value on creation for the business_id field.
 	product.DefaultBusinessID = productDescBusinessID.Default.(int64)
+	// productDescCount is the schema descriptor for count field.
+	productDescCount := productFields[7].Descriptor()
+	// product.DefaultCount holds the default value on creation for the count field.
+	product.DefaultCount = productDescCount.Default.(int64)
 	// productDescID is the schema descriptor for id field.
 	productDescID := productMixinFields0[0].Descriptor()
 	// product.DefaultID holds the default value on creation for the id field.

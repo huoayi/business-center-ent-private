@@ -193,6 +193,20 @@ func (pc *ProductCreate) SetNillableProduceType(et *enum.ProduceType) *ProductCr
 	return pc
 }
 
+// SetCount sets the "count" field.
+func (pc *ProductCreate) SetCount(i int64) *ProductCreate {
+	pc.mutation.SetCount(i)
+	return pc
+}
+
+// SetNillableCount sets the "count" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableCount(i *int64) *ProductCreate {
+	if i != nil {
+		pc.SetCount(*i)
+	}
+	return pc
+}
+
 // SetID sets the "id" field.
 func (pc *ProductCreate) SetID(i int64) *ProductCreate {
 	pc.mutation.SetID(i)
@@ -316,6 +330,10 @@ func (pc *ProductCreate) defaults() {
 		v := product.DefaultProduceType
 		pc.mutation.SetProduceType(v)
 	}
+	if _, ok := pc.mutation.Count(); !ok {
+		v := product.DefaultCount
+		pc.mutation.SetCount(v)
+	}
 	if _, ok := pc.mutation.ID(); !ok {
 		v := product.DefaultID()
 		pc.mutation.SetID(v)
@@ -364,6 +382,9 @@ func (pc *ProductCreate) check() error {
 		if err := product.ProduceTypeValidator(v); err != nil {
 			return &ValidationError{Name: "produce_type", err: fmt.Errorf(`ent_work: validator failed for field "Product.produce_type": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.Count(); !ok {
+		return &ValidationError{Name: "count", err: errors.New(`ent_work: missing required field "Product.count"`)}
 	}
 	if _, ok := pc.mutation.MerchantID(); !ok {
 		return &ValidationError{Name: "merchant", err: errors.New(`ent_work: missing required edge "Product.merchant"`)}
@@ -444,6 +465,10 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.ProduceType(); ok {
 		_spec.SetField(product.FieldProduceType, field.TypeEnum, value)
 		_node.ProduceType = value
+	}
+	if value, ok := pc.mutation.Count(); ok {
+		_spec.SetField(product.FieldCount, field.TypeInt64, value)
+		_node.Count = value
 	}
 	if nodes := pc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -680,6 +705,24 @@ func (u *ProductUpsert) UpdateProduceType() *ProductUpsert {
 	return u
 }
 
+// SetCount sets the "count" field.
+func (u *ProductUpsert) SetCount(v int64) *ProductUpsert {
+	u.Set(product.FieldCount, v)
+	return u
+}
+
+// UpdateCount sets the "count" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateCount() *ProductUpsert {
+	u.SetExcluded(product.FieldCount)
+	return u
+}
+
+// AddCount adds v to the "count" field.
+func (u *ProductUpsert) AddCount(v int64) *ProductUpsert {
+	u.Add(product.FieldCount, v)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -903,6 +946,27 @@ func (u *ProductUpsertOne) SetProduceType(v enum.ProduceType) *ProductUpsertOne 
 func (u *ProductUpsertOne) UpdateProduceType() *ProductUpsertOne {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateProduceType()
+	})
+}
+
+// SetCount sets the "count" field.
+func (u *ProductUpsertOne) SetCount(v int64) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetCount(v)
+	})
+}
+
+// AddCount adds v to the "count" field.
+func (u *ProductUpsertOne) AddCount(v int64) *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.AddCount(v)
+	})
+}
+
+// UpdateCount sets the "count" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateCount() *ProductUpsertOne {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateCount()
 	})
 }
 
@@ -1295,6 +1359,27 @@ func (u *ProductUpsertBulk) SetProduceType(v enum.ProduceType) *ProductUpsertBul
 func (u *ProductUpsertBulk) UpdateProduceType() *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
 		s.UpdateProduceType()
+	})
+}
+
+// SetCount sets the "count" field.
+func (u *ProductUpsertBulk) SetCount(v int64) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.SetCount(v)
+	})
+}
+
+// AddCount adds v to the "count" field.
+func (u *ProductUpsertBulk) AddCount(v int64) *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.AddCount(v)
+	})
+}
+
+// UpdateCount sets the "count" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateCount() *ProductUpsertBulk {
+	return u.Update(func(s *ProductUpsert) {
+		s.UpdateCount()
 	})
 }
 
