@@ -43,6 +43,8 @@ type Merchant struct {
 	UserID int64 `json:"user_id,string"`
 	// 省份
 	Provence enum.Provence `json:"provence"`
+	// 支付路径
+	PayURL string `json:"pay_url"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MerchantQuery when eager-loading is set.
 	Edges        MerchantEdges `json:"edges"`
@@ -89,7 +91,7 @@ func (*Merchant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case merchant.FieldID, merchant.FieldCreatedBy, merchant.FieldUpdatedBy, merchant.FieldAmount, merchant.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case merchant.FieldMerchantName, merchant.FieldJpgURL, merchant.FieldComment, merchant.FieldProvence:
+		case merchant.FieldMerchantName, merchant.FieldJpgURL, merchant.FieldComment, merchant.FieldProvence, merchant.FieldPayURL:
 			values[i] = new(sql.NullString)
 		case merchant.FieldCreatedAt, merchant.FieldUpdatedAt, merchant.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -180,6 +182,12 @@ func (m *Merchant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Provence = enum.Provence(value.String)
 			}
+		case merchant.FieldPayURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pay_url", values[i])
+			} else if value.Valid {
+				m.PayURL = value.String
+			}
 		default:
 			m.selectValues.Set(columns[i], values[i])
 		}
@@ -258,6 +266,9 @@ func (m *Merchant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("provence=")
 	builder.WriteString(fmt.Sprintf("%v", m.Provence))
+	builder.WriteString(", ")
+	builder.WriteString("pay_url=")
+	builder.WriteString(m.PayURL)
 	builder.WriteByte(')')
 	return builder.String()
 }

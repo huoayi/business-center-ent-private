@@ -185,6 +185,20 @@ func (mu *MerchantUpdate) SetNillableProvence(e *enum.Provence) *MerchantUpdate 
 	return mu
 }
 
+// SetPayURL sets the "pay_url" field.
+func (mu *MerchantUpdate) SetPayURL(s string) *MerchantUpdate {
+	mu.mutation.SetPayURL(s)
+	return mu
+}
+
+// SetNillablePayURL sets the "pay_url" field if the given value is not nil.
+func (mu *MerchantUpdate) SetNillablePayURL(s *string) *MerchantUpdate {
+	if s != nil {
+		mu.SetPayURL(*s)
+	}
+	return mu
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (mu *MerchantUpdate) SetUser(u *User) *MerchantUpdate {
 	return mu.SetUserID(u.ID)
@@ -328,6 +342,9 @@ func (mu *MerchantUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mu.mutation.Provence(); ok {
 		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
+	}
+	if value, ok := mu.mutation.PayURL(); ok {
+		_spec.SetField(merchant.FieldPayURL, field.TypeString, value)
 	}
 	if mu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -562,6 +579,20 @@ func (muo *MerchantUpdateOne) SetNillableProvence(e *enum.Provence) *MerchantUpd
 	return muo
 }
 
+// SetPayURL sets the "pay_url" field.
+func (muo *MerchantUpdateOne) SetPayURL(s string) *MerchantUpdateOne {
+	muo.mutation.SetPayURL(s)
+	return muo
+}
+
+// SetNillablePayURL sets the "pay_url" field if the given value is not nil.
+func (muo *MerchantUpdateOne) SetNillablePayURL(s *string) *MerchantUpdateOne {
+	if s != nil {
+		muo.SetPayURL(*s)
+	}
+	return muo
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (muo *MerchantUpdateOne) SetUser(u *User) *MerchantUpdateOne {
 	return muo.SetUserID(u.ID)
@@ -735,6 +766,9 @@ func (muo *MerchantUpdateOne) sqlSave(ctx context.Context) (_node *Merchant, err
 	}
 	if value, ok := muo.mutation.Provence(); ok {
 		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
+	}
+	if value, ok := muo.mutation.PayURL(); ok {
+		_spec.SetField(merchant.FieldPayURL, field.TypeString, value)
 	}
 	if muo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

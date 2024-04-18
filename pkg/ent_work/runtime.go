@@ -112,6 +112,10 @@ func init() {
 	merchantDescUserID := merchantFields[4].Descriptor()
 	// merchant.DefaultUserID holds the default value on creation for the user_id field.
 	merchant.DefaultUserID = merchantDescUserID.Default.(int64)
+	// merchantDescPayURL is the schema descriptor for pay_url field.
+	merchantDescPayURL := merchantFields[6].Descriptor()
+	// merchant.DefaultPayURL holds the default value on creation for the pay_url field.
+	merchant.DefaultPayURL = merchantDescPayURL.Default.(string)
 	// merchantDescID is the schema descriptor for id field.
 	merchantDescID := merchantMixinFields0[0].Descriptor()
 	// merchant.DefaultID holds the default value on creation for the id field.

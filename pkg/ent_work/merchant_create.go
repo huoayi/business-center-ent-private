@@ -179,6 +179,20 @@ func (mc *MerchantCreate) SetNillableProvence(e *enum.Provence) *MerchantCreate 
 	return mc
 }
 
+// SetPayURL sets the "pay_url" field.
+func (mc *MerchantCreate) SetPayURL(s string) *MerchantCreate {
+	mc.mutation.SetPayURL(s)
+	return mc
+}
+
+// SetNillablePayURL sets the "pay_url" field if the given value is not nil.
+func (mc *MerchantCreate) SetNillablePayURL(s *string) *MerchantCreate {
+	if s != nil {
+		mc.SetPayURL(*s)
+	}
+	return mc
+}
+
 // SetID sets the "id" field.
 func (mc *MerchantCreate) SetID(i int64) *MerchantCreate {
 	mc.mutation.SetID(i)
@@ -296,6 +310,10 @@ func (mc *MerchantCreate) defaults() {
 		v := merchant.DefaultProvence
 		mc.mutation.SetProvence(v)
 	}
+	if _, ok := mc.mutation.PayURL(); !ok {
+		v := merchant.DefaultPayURL
+		mc.mutation.SetPayURL(v)
+	}
 	if _, ok := mc.mutation.ID(); !ok {
 		v := merchant.DefaultID()
 		mc.mutation.SetID(v)
@@ -341,6 +359,9 @@ func (mc *MerchantCreate) check() error {
 		if err := merchant.ProvenceValidator(v); err != nil {
 			return &ValidationError{Name: "provence", err: fmt.Errorf(`ent_work: validator failed for field "Merchant.provence": %w`, err)}
 		}
+	}
+	if _, ok := mc.mutation.PayURL(); !ok {
+		return &ValidationError{Name: "pay_url", err: errors.New(`ent_work: missing required field "Merchant.pay_url"`)}
 	}
 	if _, ok := mc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user", err: errors.New(`ent_work: missing required edge "Merchant.user"`)}
@@ -417,6 +438,10 @@ func (mc *MerchantCreate) createSpec() (*Merchant, *sqlgraph.CreateSpec) {
 	if value, ok := mc.mutation.Provence(); ok {
 		_spec.SetField(merchant.FieldProvence, field.TypeEnum, value)
 		_node.Provence = value
+	}
+	if value, ok := mc.mutation.PayURL(); ok {
+		_spec.SetField(merchant.FieldPayURL, field.TypeString, value)
+		_node.PayURL = value
 	}
 	if nodes := mc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -641,6 +666,18 @@ func (u *MerchantUpsert) UpdateProvence() *MerchantUpsert {
 	return u
 }
 
+// SetPayURL sets the "pay_url" field.
+func (u *MerchantUpsert) SetPayURL(v string) *MerchantUpsert {
+	u.Set(merchant.FieldPayURL, v)
+	return u
+}
+
+// UpdatePayURL sets the "pay_url" field to the value that was provided on create.
+func (u *MerchantUpsert) UpdatePayURL() *MerchantUpsert {
+	u.SetExcluded(merchant.FieldPayURL)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
@@ -850,6 +887,20 @@ func (u *MerchantUpsertOne) SetProvence(v enum.Provence) *MerchantUpsertOne {
 func (u *MerchantUpsertOne) UpdateProvence() *MerchantUpsertOne {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateProvence()
+	})
+}
+
+// SetPayURL sets the "pay_url" field.
+func (u *MerchantUpsertOne) SetPayURL(v string) *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.SetPayURL(v)
+	})
+}
+
+// UpdatePayURL sets the "pay_url" field to the value that was provided on create.
+func (u *MerchantUpsertOne) UpdatePayURL() *MerchantUpsertOne {
+	return u.Update(func(s *MerchantUpsert) {
+		s.UpdatePayURL()
 	})
 }
 
@@ -1228,6 +1279,20 @@ func (u *MerchantUpsertBulk) SetProvence(v enum.Provence) *MerchantUpsertBulk {
 func (u *MerchantUpsertBulk) UpdateProvence() *MerchantUpsertBulk {
 	return u.Update(func(s *MerchantUpsert) {
 		s.UpdateProvence()
+	})
+}
+
+// SetPayURL sets the "pay_url" field.
+func (u *MerchantUpsertBulk) SetPayURL(v string) *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.SetPayURL(v)
+	})
+}
+
+// UpdatePayURL sets the "pay_url" field to the value that was provided on create.
+func (u *MerchantUpsertBulk) UpdatePayURL() *MerchantUpsertBulk {
+	return u.Update(func(s *MerchantUpsert) {
+		s.UpdatePayURL()
 	})
 }
 

@@ -38,6 +38,8 @@ const (
 	FieldUserID = "user_id"
 	// FieldProvence holds the string denoting the provence field in the database.
 	FieldProvence = "provence"
+	// FieldPayURL holds the string denoting the pay_url field in the database.
+	FieldPayURL = "pay_url"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// EdgeProducts holds the string denoting the products edge name in mutations.
@@ -74,6 +76,7 @@ var Columns = []string{
 	FieldAmount,
 	FieldUserID,
 	FieldProvence,
+	FieldPayURL,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -109,6 +112,8 @@ var (
 	DefaultAmount int
 	// DefaultUserID holds the default value on creation for the "user_id" field.
 	DefaultUserID int64
+	// DefaultPayURL holds the default value on creation for the "pay_url" field.
+	DefaultPayURL string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() int64
 )
@@ -186,6 +191,11 @@ func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 // ByProvence orders the results by the provence field.
 func ByProvence(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProvence, opts...).ToFunc()
+}
+
+// ByPayURL orders the results by the pay_url field.
+func ByPayURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPayURL, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

@@ -106,6 +106,11 @@ func UserID(v int64) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldUserID, v))
 }
 
+// PayURL applies equality check predicate on the "pay_url" field. It's identical to PayURLEQ.
+func PayURL(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldPayURL, v))
+}
+
 // CreatedByEQ applies the EQ predicate on the "created_by" field.
 func CreatedByEQ(v int64) predicate.Merchant {
 	return predicate.Merchant(sql.FieldEQ(FieldCreatedBy, v))
@@ -589,6 +594,71 @@ func ProvenceNotIn(vs ...enum.Provence) predicate.Merchant {
 		v[i] = vs[i]
 	}
 	return predicate.Merchant(sql.FieldNotIn(FieldProvence, v...))
+}
+
+// PayURLEQ applies the EQ predicate on the "pay_url" field.
+func PayURLEQ(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEQ(FieldPayURL, v))
+}
+
+// PayURLNEQ applies the NEQ predicate on the "pay_url" field.
+func PayURLNEQ(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNEQ(FieldPayURL, v))
+}
+
+// PayURLIn applies the In predicate on the "pay_url" field.
+func PayURLIn(vs ...string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldIn(FieldPayURL, vs...))
+}
+
+// PayURLNotIn applies the NotIn predicate on the "pay_url" field.
+func PayURLNotIn(vs ...string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldNotIn(FieldPayURL, vs...))
+}
+
+// PayURLGT applies the GT predicate on the "pay_url" field.
+func PayURLGT(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldGT(FieldPayURL, v))
+}
+
+// PayURLGTE applies the GTE predicate on the "pay_url" field.
+func PayURLGTE(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldGTE(FieldPayURL, v))
+}
+
+// PayURLLT applies the LT predicate on the "pay_url" field.
+func PayURLLT(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldLT(FieldPayURL, v))
+}
+
+// PayURLLTE applies the LTE predicate on the "pay_url" field.
+func PayURLLTE(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldLTE(FieldPayURL, v))
+}
+
+// PayURLContains applies the Contains predicate on the "pay_url" field.
+func PayURLContains(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldContains(FieldPayURL, v))
+}
+
+// PayURLHasPrefix applies the HasPrefix predicate on the "pay_url" field.
+func PayURLHasPrefix(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldHasPrefix(FieldPayURL, v))
+}
+
+// PayURLHasSuffix applies the HasSuffix predicate on the "pay_url" field.
+func PayURLHasSuffix(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldHasSuffix(FieldPayURL, v))
+}
+
+// PayURLEqualFold applies the EqualFold predicate on the "pay_url" field.
+func PayURLEqualFold(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldEqualFold(FieldPayURL, v))
+}
+
+// PayURLContainsFold applies the ContainsFold predicate on the "pay_url" field.
+func PayURLContainsFold(v string) predicate.Merchant {
+	return predicate.Merchant(sql.FieldContainsFold(FieldPayURL, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

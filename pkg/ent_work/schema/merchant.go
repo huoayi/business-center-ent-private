@@ -19,6 +19,7 @@ func (Merchant) Fields() []ent.Field {
 		field.Int("amount").Default(0).Comment("上架商品总数"),
 		field.Int64("user_id").StructTag(`json:"user_id,string"`).Default(0).Comment("外键用户 id"),
 		field.Enum("provence").GoType(enum.HeNan).StructTag(`json:"provence"`).Default(string(enum.HeNan)).Comment("省份"),
+		field.String("pay_url").Default("").StructTag(`json:"pay_url"`).Comment("支付路径"),
 	}
 }
 

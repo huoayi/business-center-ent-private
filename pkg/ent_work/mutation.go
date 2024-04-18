@@ -944,6 +944,7 @@ type MerchantMutation struct {
 	amount          *int
 	addamount       *int
 	provence        *enum.Provence
+	pay_url         *string
 	clearedFields   map[string]struct{}
 	user            *int64
 	cleareduser     bool
@@ -1514,6 +1515,42 @@ func (m *MerchantMutation) ResetProvence() {
 	m.provence = nil
 }
 
+// SetPayURL sets the "pay_url" field.
+func (m *MerchantMutation) SetPayURL(s string) {
+	m.pay_url = &s
+}
+
+// PayURL returns the value of the "pay_url" field in the mutation.
+func (m *MerchantMutation) PayURL() (r string, exists bool) {
+	v := m.pay_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPayURL returns the old "pay_url" field's value of the Merchant entity.
+// If the Merchant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MerchantMutation) OldPayURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPayURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPayURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPayURL: %w", err)
+	}
+	return oldValue.PayURL, nil
+}
+
+// ResetPayURL resets all changes to the "pay_url" field.
+func (m *MerchantMutation) ResetPayURL() {
+	m.pay_url = nil
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *MerchantMutation) ClearUser() {
 	m.cleareduser = true
@@ -1614,7 +1651,7 @@ func (m *MerchantMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MerchantMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.created_by != nil {
 		fields = append(fields, merchant.FieldCreatedBy)
 	}
@@ -1648,6 +1685,9 @@ func (m *MerchantMutation) Fields() []string {
 	if m.provence != nil {
 		fields = append(fields, merchant.FieldProvence)
 	}
+	if m.pay_url != nil {
+		fields = append(fields, merchant.FieldPayURL)
+	}
 	return fields
 }
 
@@ -1678,6 +1718,8 @@ func (m *MerchantMutation) Field(name string) (ent.Value, bool) {
 		return m.UserID()
 	case merchant.FieldProvence:
 		return m.Provence()
+	case merchant.FieldPayURL:
+		return m.PayURL()
 	}
 	return nil, false
 }
@@ -1709,6 +1751,8 @@ func (m *MerchantMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldUserID(ctx)
 	case merchant.FieldProvence:
 		return m.OldProvence(ctx)
+	case merchant.FieldPayURL:
+		return m.OldPayURL(ctx)
 	}
 	return nil, fmt.Errorf("unknown Merchant field %s", name)
 }
@@ -1794,6 +1838,13 @@ func (m *MerchantMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProvence(v)
+		return nil
+	case merchant.FieldPayURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPayURL(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)
@@ -1915,6 +1966,9 @@ func (m *MerchantMutation) ResetField(name string) error {
 		return nil
 	case merchant.FieldProvence:
 		m.ResetProvence()
+		return nil
+	case merchant.FieldPayURL:
+		m.ResetPayURL()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant field %s", name)

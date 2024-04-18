@@ -57,6 +57,7 @@ var (
 		{Name: "comment", Type: field.TypeString, Comment: "商户介绍", Default: ""},
 		{Name: "amount", Type: field.TypeInt, Comment: "上架商品总数", Default: 0},
 		{Name: "provence", Type: field.TypeEnum, Comment: "省份", Enums: []string{"安徽", "北京", "重庆", "福建", "甘肃", "广东", "广西", "贵州", "海南", "黑龙江", "河北", "河南", "湖北", "湖南", "江苏", "江西", "吉林", "辽宁", "内蒙古", "宁夏", "青海", "山东", "山西", "陕西", "上海", "四川", "天津", "新疆", "云南", "浙江"}, Default: "河南"},
+		{Name: "pay_url", Type: field.TypeString, Comment: "支付路径", Default: ""},
 		{Name: "user_id", Type: field.TypeInt64, Comment: "外键用户 id", Default: 0},
 	}
 	// MerchantsTable holds the schema information for the "merchants" table.
@@ -67,7 +68,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "merchants_users_merchants",
-				Columns:    []*schema.Column{MerchantsColumns[11]},
+				Columns:    []*schema.Column{MerchantsColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
