@@ -59,7 +59,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "product" package.
 	ProductsInverseTable = "products"
 	// ProductsColumn is the table column denoting the products relation/edge.
-	ProductsColumn = "business_id"
+	ProductsColumn = "merchant_id"
 )
 
 // Columns holds all SQL columns for merchant fields.
@@ -205,10 +205,17 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByProductsField orders the results by products field.
-func ByProductsField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByProductsCount orders the results by products count.
+func ByProductsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newProductsStep(), opts...)
+	}
+}
+
+// ByProducts orders the results by products terms.
+func ByProducts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProductsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newUserStep() *sqlgraph.Step {
@@ -222,6 +229,6 @@ func newProductsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ProductsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, ProductsTable, ProductsColumn),
+		sqlgraph.Edge(sqlgraph.O2M, false, ProductsTable, ProductsColumn),
 	)
 }

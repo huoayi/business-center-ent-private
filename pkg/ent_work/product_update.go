@@ -171,16 +171,16 @@ func (pu *ProductUpdate) SetNillableUnit(s *string) *ProductUpdate {
 	return pu
 }
 
-// SetBusinessID sets the "business_id" field.
-func (pu *ProductUpdate) SetBusinessID(i int64) *ProductUpdate {
-	pu.mutation.SetBusinessID(i)
+// SetMerchantID sets the "merchant_id" field.
+func (pu *ProductUpdate) SetMerchantID(i int64) *ProductUpdate {
+	pu.mutation.SetMerchantID(i)
 	return pu
 }
 
-// SetNillableBusinessID sets the "business_id" field if the given value is not nil.
-func (pu *ProductUpdate) SetNillableBusinessID(i *int64) *ProductUpdate {
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (pu *ProductUpdate) SetNillableMerchantID(i *int64) *ProductUpdate {
 	if i != nil {
-		pu.SetBusinessID(*i)
+		pu.SetMerchantID(*i)
 	}
 	return pu
 }
@@ -217,12 +217,6 @@ func (pu *ProductUpdate) SetNillableCount(i *int64) *ProductUpdate {
 // AddCount adds i to the "count" field.
 func (pu *ProductUpdate) AddCount(i int64) *ProductUpdate {
 	pu.mutation.AddCount(i)
-	return pu
-}
-
-// SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
-func (pu *ProductUpdate) SetMerchantID(id int64) *ProductUpdate {
-	pu.mutation.SetMerchantID(id)
 	return pu
 }
 
@@ -392,7 +386,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -405,7 +399,7 @@ func (pu *ProductUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := pu.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -625,16 +619,16 @@ func (puo *ProductUpdateOne) SetNillableUnit(s *string) *ProductUpdateOne {
 	return puo
 }
 
-// SetBusinessID sets the "business_id" field.
-func (puo *ProductUpdateOne) SetBusinessID(i int64) *ProductUpdateOne {
-	puo.mutation.SetBusinessID(i)
+// SetMerchantID sets the "merchant_id" field.
+func (puo *ProductUpdateOne) SetMerchantID(i int64) *ProductUpdateOne {
+	puo.mutation.SetMerchantID(i)
 	return puo
 }
 
-// SetNillableBusinessID sets the "business_id" field if the given value is not nil.
-func (puo *ProductUpdateOne) SetNillableBusinessID(i *int64) *ProductUpdateOne {
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (puo *ProductUpdateOne) SetNillableMerchantID(i *int64) *ProductUpdateOne {
 	if i != nil {
-		puo.SetBusinessID(*i)
+		puo.SetMerchantID(*i)
 	}
 	return puo
 }
@@ -671,12 +665,6 @@ func (puo *ProductUpdateOne) SetNillableCount(i *int64) *ProductUpdateOne {
 // AddCount adds i to the "count" field.
 func (puo *ProductUpdateOne) AddCount(i int64) *ProductUpdateOne {
 	puo.mutation.AddCount(i)
-	return puo
-}
-
-// SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
-func (puo *ProductUpdateOne) SetMerchantID(id int64) *ProductUpdateOne {
-	puo.mutation.SetMerchantID(id)
 	return puo
 }
 
@@ -876,7 +864,7 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if puo.mutation.MerchantCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -889,7 +877,7 @@ func (puo *ProductUpdateOne) sqlSave(ctx context.Context) (_node *Product, err e
 	}
 	if nodes := puo.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},

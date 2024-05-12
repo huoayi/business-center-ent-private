@@ -948,7 +948,8 @@ type MerchantMutation struct {
 	clearedFields   map[string]struct{}
 	user            *int64
 	cleareduser     bool
-	products        *int64
+	products        map[int64]struct{}
+	removedproducts map[int64]struct{}
 	clearedproducts bool
 	done            bool
 	oldValue        func(context.Context) (*Merchant, error)
@@ -1578,9 +1579,14 @@ func (m *MerchantMutation) ResetUser() {
 	m.cleareduser = false
 }
 
-// SetProductsID sets the "products" edge to the Product entity by id.
-func (m *MerchantMutation) SetProductsID(id int64) {
-	m.products = &id
+// AddProductIDs adds the "products" edge to the Product entity by ids.
+func (m *MerchantMutation) AddProductIDs(ids ...int64) {
+	if m.products == nil {
+		m.products = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.products[ids[i]] = struct{}{}
+	}
 }
 
 // ClearProducts clears the "products" edge to the Product entity.
@@ -1593,20 +1599,29 @@ func (m *MerchantMutation) ProductsCleared() bool {
 	return m.clearedproducts
 }
 
-// ProductsID returns the "products" edge ID in the mutation.
-func (m *MerchantMutation) ProductsID() (id int64, exists bool) {
-	if m.products != nil {
-		return *m.products, true
+// RemoveProductIDs removes the "products" edge to the Product entity by IDs.
+func (m *MerchantMutation) RemoveProductIDs(ids ...int64) {
+	if m.removedproducts == nil {
+		m.removedproducts = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.products, ids[i])
+		m.removedproducts[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedProducts returns the removed IDs of the "products" edge to the Product entity.
+func (m *MerchantMutation) RemovedProductsIDs() (ids []int64) {
+	for id := range m.removedproducts {
+		ids = append(ids, id)
 	}
 	return
 }
 
 // ProductsIDs returns the "products" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// ProductsID instead. It exists only for internal usage by the builders.
 func (m *MerchantMutation) ProductsIDs() (ids []int64) {
-	if id := m.products; id != nil {
-		ids = append(ids, *id)
+	for id := range m.products {
+		ids = append(ids, id)
 	}
 	return
 }
@@ -1615,6 +1630,7 @@ func (m *MerchantMutation) ProductsIDs() (ids []int64) {
 func (m *MerchantMutation) ResetProducts() {
 	m.products = nil
 	m.clearedproducts = false
+	m.removedproducts = nil
 }
 
 // Where appends a list predicates to the MerchantMutation builder.
@@ -1995,9 +2011,11 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 			return []ent.Value{*id}
 		}
 	case merchant.EdgeProducts:
-		if id := m.products; id != nil {
-			return []ent.Value{*id}
+		ids := make([]ent.Value, 0, len(m.products))
+		for id := range m.products {
+			ids = append(ids, id)
 		}
+		return ids
 	}
 	return nil
 }
@@ -2005,12 +2023,23 @@ func (m *MerchantMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MerchantMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
+	if m.removedproducts != nil {
+		edges = append(edges, merchant.EdgeProducts)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *MerchantMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case merchant.EdgeProducts:
+		ids := make([]ent.Value, 0, len(m.removedproducts))
+		for id := range m.removedproducts {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
@@ -2044,9 +2073,6 @@ func (m *MerchantMutation) ClearEdge(name string) error {
 	switch name {
 	case merchant.EdgeUser:
 		m.ClearUser()
-		return nil
-	case merchant.EdgeProducts:
-		m.ClearProducts()
 		return nil
 	}
 	return fmt.Errorf("unknown Merchant unique edge %s", name)
@@ -3730,13 +3756,13 @@ func (m *ProductMutation) ResetUnit() {
 	m.unit = nil
 }
 
-// SetBusinessID sets the "business_id" field.
-func (m *ProductMutation) SetBusinessID(i int64) {
+// SetMerchantID sets the "merchant_id" field.
+func (m *ProductMutation) SetMerchantID(i int64) {
 	m.merchant = &i
 }
 
-// BusinessID returns the value of the "business_id" field in the mutation.
-func (m *ProductMutation) BusinessID() (r int64, exists bool) {
+// MerchantID returns the value of the "merchant_id" field in the mutation.
+func (m *ProductMutation) MerchantID() (r int64, exists bool) {
 	v := m.merchant
 	if v == nil {
 		return
@@ -3744,25 +3770,25 @@ func (m *ProductMutation) BusinessID() (r int64, exists bool) {
 	return *v, true
 }
 
-// OldBusinessID returns the old "business_id" field's value of the Product entity.
+// OldMerchantID returns the old "merchant_id" field's value of the Product entity.
 // If the Product object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ProductMutation) OldBusinessID(ctx context.Context) (v int64, err error) {
+func (m *ProductMutation) OldMerchantID(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldBusinessID is only allowed on UpdateOne operations")
+		return v, errors.New("OldMerchantID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldBusinessID requires an ID field in the mutation")
+		return v, errors.New("OldMerchantID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldBusinessID: %w", err)
+		return v, fmt.Errorf("querying old value for OldMerchantID: %w", err)
 	}
-	return oldValue.BusinessID, nil
+	return oldValue.MerchantID, nil
 }
 
-// ResetBusinessID resets all changes to the "business_id" field.
-func (m *ProductMutation) ResetBusinessID() {
+// ResetMerchantID resets all changes to the "merchant_id" field.
+func (m *ProductMutation) ResetMerchantID() {
 	m.merchant = nil
 }
 
@@ -3858,28 +3884,15 @@ func (m *ProductMutation) ResetCount() {
 	m.addcount = nil
 }
 
-// SetMerchantID sets the "merchant" edge to the Merchant entity by id.
-func (m *ProductMutation) SetMerchantID(id int64) {
-	m.merchant = &id
-}
-
 // ClearMerchant clears the "merchant" edge to the Merchant entity.
 func (m *ProductMutation) ClearMerchant() {
 	m.clearedmerchant = true
-	m.clearedFields[product.FieldBusinessID] = struct{}{}
+	m.clearedFields[product.FieldMerchantID] = struct{}{}
 }
 
 // MerchantCleared reports if the "merchant" edge to the Merchant entity was cleared.
 func (m *ProductMutation) MerchantCleared() bool {
 	return m.clearedmerchant
-}
-
-// MerchantID returns the "merchant" edge ID in the mutation.
-func (m *ProductMutation) MerchantID() (id int64, exists bool) {
-	if m.merchant != nil {
-		return *m.merchant, true
-	}
-	return
 }
 
 // MerchantIDs returns the "merchant" edge IDs in the mutation.
@@ -4018,7 +4031,7 @@ func (m *ProductMutation) Fields() []string {
 		fields = append(fields, product.FieldUnit)
 	}
 	if m.merchant != nil {
-		fields = append(fields, product.FieldBusinessID)
+		fields = append(fields, product.FieldMerchantID)
 	}
 	if m.produce_type != nil {
 		fields = append(fields, product.FieldProduceType)
@@ -4054,8 +4067,8 @@ func (m *ProductMutation) Field(name string) (ent.Value, bool) {
 		return m.Price()
 	case product.FieldUnit:
 		return m.Unit()
-	case product.FieldBusinessID:
-		return m.BusinessID()
+	case product.FieldMerchantID:
+		return m.MerchantID()
 	case product.FieldProduceType:
 		return m.ProduceType()
 	case product.FieldCount:
@@ -4089,8 +4102,8 @@ func (m *ProductMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPrice(ctx)
 	case product.FieldUnit:
 		return m.OldUnit(ctx)
-	case product.FieldBusinessID:
-		return m.OldBusinessID(ctx)
+	case product.FieldMerchantID:
+		return m.OldMerchantID(ctx)
 	case product.FieldProduceType:
 		return m.OldProduceType(ctx)
 	case product.FieldCount:
@@ -4174,12 +4187,12 @@ func (m *ProductMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUnit(v)
 		return nil
-	case product.FieldBusinessID:
+	case product.FieldMerchantID:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBusinessID(v)
+		m.SetMerchantID(v)
 		return nil
 	case product.FieldProduceType:
 		v, ok := value.(enum.ProduceType)
@@ -4325,8 +4338,8 @@ func (m *ProductMutation) ResetField(name string) error {
 	case product.FieldUnit:
 		m.ResetUnit()
 		return nil
-	case product.FieldBusinessID:
-		m.ResetBusinessID()
+	case product.FieldMerchantID:
+		m.ResetMerchantID()
 		return nil
 	case product.FieldProduceType:
 		m.ResetProduceType()

@@ -218,10 +218,10 @@ func init() {
 	productDescUnit := productFields[4].Descriptor()
 	// product.DefaultUnit holds the default value on creation for the unit field.
 	product.DefaultUnit = productDescUnit.Default.(string)
-	// productDescBusinessID is the schema descriptor for business_id field.
-	productDescBusinessID := productFields[5].Descriptor()
-	// product.DefaultBusinessID holds the default value on creation for the business_id field.
-	product.DefaultBusinessID = productDescBusinessID.Default.(int64)
+	// productDescMerchantID is the schema descriptor for merchant_id field.
+	productDescMerchantID := productFields[5].Descriptor()
+	// product.DefaultMerchantID holds the default value on creation for the merchant_id field.
+	product.DefaultMerchantID = productDescMerchantID.Default.(int64)
 	// productDescCount is the schema descriptor for count field.
 	productDescCount := productFields[7].Descriptor()
 	// product.DefaultCount holds the default value on creation for the count field.

@@ -526,7 +526,7 @@ func (c *MerchantClient) QueryProducts(m *Merchant) *ProductQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(merchant.Table, merchant.FieldID, id),
 			sqlgraph.To(product.Table, product.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, merchant.ProductsTable, merchant.ProductsColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, merchant.ProductsTable, merchant.ProductsColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -840,7 +840,7 @@ func (c *ProductClient) QueryMerchant(pr *Product) *MerchantQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, id),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, product.MerchantTable, product.MerchantColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.MerchantTable, product.MerchantColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil

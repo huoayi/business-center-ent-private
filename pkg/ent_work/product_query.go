@@ -77,7 +77,7 @@ func (pq *ProductQuery) QueryMerchant() *MerchantQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(product.Table, product.FieldID, selector),
 			sqlgraph.To(merchant.Table, merchant.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, product.MerchantTable, product.MerchantColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, product.MerchantTable, product.MerchantColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -453,7 +453,7 @@ func (pq *ProductQuery) loadMerchant(ctx context.Context, query *MerchantQuery, 
 	ids := make([]int64, 0, len(nodes))
 	nodeids := make(map[int64][]*Product)
 	for i := range nodes {
-		fk := nodes[i].BusinessID
+		fk := nodes[i].MerchantID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -470,7 +470,7 @@ func (pq *ProductQuery) loadMerchant(ctx context.Context, query *MerchantQuery, 
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "business_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "merchant_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -538,7 +538,7 @@ func (pq *ProductQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 		if pq.withMerchant != nil {
-			_spec.Node.AddColumnOnce(product.FieldBusinessID)
+			_spec.Node.AddColumnOnce(product.FieldMerchantID)
 		}
 	}
 	if ps := pq.predicates; len(ps) > 0 {

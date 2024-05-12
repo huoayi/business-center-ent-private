@@ -41,7 +41,7 @@ type Product struct {
 	// 单价使用单位
 	Unit string `json:"unit,omitempty"`
 	// 外键商户用户 id
-	BusinessID int64 `json:"merchant_id"`
+	MerchantID int64 `json:"merchant_id"`
 	// 产品类型
 	ProduceType enum.ProduceType `json:"produce_type"`
 	// 库存
@@ -88,7 +88,7 @@ func (*Product) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldPrice, product.FieldBusinessID, product.FieldCount:
+		case product.FieldID, product.FieldCreatedBy, product.FieldUpdatedBy, product.FieldPrice, product.FieldMerchantID, product.FieldCount:
 			values[i] = new(sql.NullInt64)
 		case product.FieldProductName, product.FieldJpgURL, product.FieldComment, product.FieldUnit, product.FieldProduceType:
 			values[i] = new(sql.NullString)
@@ -175,11 +175,11 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pr.Unit = value.String
 			}
-		case product.FieldBusinessID:
+		case product.FieldMerchantID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field business_id", values[i])
+				return fmt.Errorf("unexpected type %T for field merchant_id", values[i])
 			} else if value.Valid {
-				pr.BusinessID = value.Int64
+				pr.MerchantID = value.Int64
 			}
 		case product.FieldProduceType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -269,8 +269,8 @@ func (pr *Product) String() string {
 	builder.WriteString("unit=")
 	builder.WriteString(pr.Unit)
 	builder.WriteString(", ")
-	builder.WriteString("business_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.BusinessID))
+	builder.WriteString("merchant_id=")
+	builder.WriteString(fmt.Sprintf("%v", pr.MerchantID))
 	builder.WriteString(", ")
 	builder.WriteString("produce_type=")
 	builder.WriteString(fmt.Sprintf("%v", pr.ProduceType))

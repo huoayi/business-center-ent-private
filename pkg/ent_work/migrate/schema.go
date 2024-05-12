@@ -124,7 +124,7 @@ var (
 		{Name: "unit", Type: field.TypeString, Comment: "单价使用单位", Default: ""},
 		{Name: "produce_type", Type: field.TypeEnum, Comment: "产品类型", Enums: []string{"tea", "edible-fungi", "vegetable", "seedlings", "medicinal-materials", "grain-and-oil-crops", "fisheries", "animal-husbandry"}, Default: "tea"},
 		{Name: "count", Type: field.TypeInt64, Comment: "库存", Default: 0},
-		{Name: "business_id", Type: field.TypeInt64, Unique: true, Comment: "外键商户用户 id", Default: 0},
+		{Name: "merchant_id", Type: field.TypeInt64, Comment: "外键商户用户 id", Default: 0},
 	}
 	// ProductsTable holds the schema information for the "products" table.
 	ProductsTable = &schema.Table{

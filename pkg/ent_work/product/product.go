@@ -36,8 +36,8 @@ const (
 	FieldPrice = "price"
 	// FieldUnit holds the string denoting the unit field in the database.
 	FieldUnit = "unit"
-	// FieldBusinessID holds the string denoting the business_id field in the database.
-	FieldBusinessID = "business_id"
+	// FieldMerchantID holds the string denoting the merchant_id field in the database.
+	FieldMerchantID = "merchant_id"
 	// FieldProduceType holds the string denoting the produce_type field in the database.
 	FieldProduceType = "produce_type"
 	// FieldCount holds the string denoting the count field in the database.
@@ -54,7 +54,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "merchant" package.
 	MerchantInverseTable = "merchants"
 	// MerchantColumn is the table column denoting the merchant relation/edge.
-	MerchantColumn = "business_id"
+	MerchantColumn = "merchant_id"
 	// OrdersTable is the table that holds the orders relation/edge.
 	OrdersTable = "orders"
 	// OrdersInverseTable is the table name for the Order entity.
@@ -77,7 +77,7 @@ var Columns = []string{
 	FieldComment,
 	FieldPrice,
 	FieldUnit,
-	FieldBusinessID,
+	FieldMerchantID,
 	FieldProduceType,
 	FieldCount,
 }
@@ -115,8 +115,8 @@ var (
 	DefaultPrice int64
 	// DefaultUnit holds the default value on creation for the "unit" field.
 	DefaultUnit string
-	// DefaultBusinessID holds the default value on creation for the "business_id" field.
-	DefaultBusinessID int64
+	// DefaultMerchantID holds the default value on creation for the "merchant_id" field.
+	DefaultMerchantID int64
 	// DefaultCount holds the default value on creation for the "count" field.
 	DefaultCount int64
 	// DefaultID holds the default value on creation for the "id" field.
@@ -193,9 +193,9 @@ func ByUnit(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnit, opts...).ToFunc()
 }
 
-// ByBusinessID orders the results by the business_id field.
-func ByBusinessID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBusinessID, opts...).ToFunc()
+// ByMerchantID orders the results by the merchant_id field.
+func ByMerchantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMerchantID, opts...).ToFunc()
 }
 
 // ByProduceType orders the results by the produce_type field.
@@ -232,7 +232,7 @@ func newMerchantStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MerchantInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, MerchantTable, MerchantColumn),
+		sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
 	)
 }
 func newOrdersStep() *sqlgraph.Step {

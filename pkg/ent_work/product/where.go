@@ -106,9 +106,9 @@ func Unit(v string) predicate.Product {
 	return predicate.Product(sql.FieldEQ(FieldUnit, v))
 }
 
-// BusinessID applies equality check predicate on the "business_id" field. It's identical to BusinessIDEQ.
-func BusinessID(v int64) predicate.Product {
-	return predicate.Product(sql.FieldEQ(FieldBusinessID, v))
+// MerchantID applies equality check predicate on the "merchant_id" field. It's identical to MerchantIDEQ.
+func MerchantID(v int64) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldMerchantID, v))
 }
 
 // Count applies equality check predicate on the "count" field. It's identical to CountEQ.
@@ -616,24 +616,24 @@ func UnitContainsFold(v string) predicate.Product {
 	return predicate.Product(sql.FieldContainsFold(FieldUnit, v))
 }
 
-// BusinessIDEQ applies the EQ predicate on the "business_id" field.
-func BusinessIDEQ(v int64) predicate.Product {
-	return predicate.Product(sql.FieldEQ(FieldBusinessID, v))
+// MerchantIDEQ applies the EQ predicate on the "merchant_id" field.
+func MerchantIDEQ(v int64) predicate.Product {
+	return predicate.Product(sql.FieldEQ(FieldMerchantID, v))
 }
 
-// BusinessIDNEQ applies the NEQ predicate on the "business_id" field.
-func BusinessIDNEQ(v int64) predicate.Product {
-	return predicate.Product(sql.FieldNEQ(FieldBusinessID, v))
+// MerchantIDNEQ applies the NEQ predicate on the "merchant_id" field.
+func MerchantIDNEQ(v int64) predicate.Product {
+	return predicate.Product(sql.FieldNEQ(FieldMerchantID, v))
 }
 
-// BusinessIDIn applies the In predicate on the "business_id" field.
-func BusinessIDIn(vs ...int64) predicate.Product {
-	return predicate.Product(sql.FieldIn(FieldBusinessID, vs...))
+// MerchantIDIn applies the In predicate on the "merchant_id" field.
+func MerchantIDIn(vs ...int64) predicate.Product {
+	return predicate.Product(sql.FieldIn(FieldMerchantID, vs...))
 }
 
-// BusinessIDNotIn applies the NotIn predicate on the "business_id" field.
-func BusinessIDNotIn(vs ...int64) predicate.Product {
-	return predicate.Product(sql.FieldNotIn(FieldBusinessID, vs...))
+// MerchantIDNotIn applies the NotIn predicate on the "merchant_id" field.
+func MerchantIDNotIn(vs ...int64) predicate.Product {
+	return predicate.Product(sql.FieldNotIn(FieldMerchantID, vs...))
 }
 
 // ProduceTypeEQ applies the EQ predicate on the "produce_type" field.
@@ -711,7 +711,7 @@ func HasMerchant() predicate.Product {
 	return predicate.Product(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, MerchantTable, MerchantColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, MerchantTable, MerchantColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

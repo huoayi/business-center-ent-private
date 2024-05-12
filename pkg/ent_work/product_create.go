@@ -165,16 +165,16 @@ func (pc *ProductCreate) SetNillableUnit(s *string) *ProductCreate {
 	return pc
 }
 
-// SetBusinessID sets the "business_id" field.
-func (pc *ProductCreate) SetBusinessID(i int64) *ProductCreate {
-	pc.mutation.SetBusinessID(i)
+// SetMerchantID sets the "merchant_id" field.
+func (pc *ProductCreate) SetMerchantID(i int64) *ProductCreate {
+	pc.mutation.SetMerchantID(i)
 	return pc
 }
 
-// SetNillableBusinessID sets the "business_id" field if the given value is not nil.
-func (pc *ProductCreate) SetNillableBusinessID(i *int64) *ProductCreate {
+// SetNillableMerchantID sets the "merchant_id" field if the given value is not nil.
+func (pc *ProductCreate) SetNillableMerchantID(i *int64) *ProductCreate {
 	if i != nil {
-		pc.SetBusinessID(*i)
+		pc.SetMerchantID(*i)
 	}
 	return pc
 }
@@ -218,12 +218,6 @@ func (pc *ProductCreate) SetNillableID(i *int64) *ProductCreate {
 	if i != nil {
 		pc.SetID(*i)
 	}
-	return pc
-}
-
-// SetMerchantID sets the "merchant" edge to the Merchant entity by ID.
-func (pc *ProductCreate) SetMerchantID(id int64) *ProductCreate {
-	pc.mutation.SetMerchantID(id)
 	return pc
 }
 
@@ -322,9 +316,9 @@ func (pc *ProductCreate) defaults() {
 		v := product.DefaultUnit
 		pc.mutation.SetUnit(v)
 	}
-	if _, ok := pc.mutation.BusinessID(); !ok {
-		v := product.DefaultBusinessID
-		pc.mutation.SetBusinessID(v)
+	if _, ok := pc.mutation.MerchantID(); !ok {
+		v := product.DefaultMerchantID
+		pc.mutation.SetMerchantID(v)
 	}
 	if _, ok := pc.mutation.ProduceType(); !ok {
 		v := product.DefaultProduceType
@@ -372,8 +366,8 @@ func (pc *ProductCreate) check() error {
 	if _, ok := pc.mutation.Unit(); !ok {
 		return &ValidationError{Name: "unit", err: errors.New(`ent_work: missing required field "Product.unit"`)}
 	}
-	if _, ok := pc.mutation.BusinessID(); !ok {
-		return &ValidationError{Name: "business_id", err: errors.New(`ent_work: missing required field "Product.business_id"`)}
+	if _, ok := pc.mutation.MerchantID(); !ok {
+		return &ValidationError{Name: "merchant_id", err: errors.New(`ent_work: missing required field "Product.merchant_id"`)}
 	}
 	if _, ok := pc.mutation.ProduceType(); !ok {
 		return &ValidationError{Name: "produce_type", err: errors.New(`ent_work: missing required field "Product.produce_type"`)}
@@ -472,7 +466,7 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 	}
 	if nodes := pc.mutation.MerchantIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   product.MerchantTable,
 			Columns: []string{product.MerchantColumn},
@@ -484,7 +478,7 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.BusinessID = nodes[0]
+		_node.MerchantID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := pc.mutation.OrdersIDs(); len(nodes) > 0 {
@@ -681,15 +675,15 @@ func (u *ProductUpsert) UpdateUnit() *ProductUpsert {
 	return u
 }
 
-// SetBusinessID sets the "business_id" field.
-func (u *ProductUpsert) SetBusinessID(v int64) *ProductUpsert {
-	u.Set(product.FieldBusinessID, v)
+// SetMerchantID sets the "merchant_id" field.
+func (u *ProductUpsert) SetMerchantID(v int64) *ProductUpsert {
+	u.Set(product.FieldMerchantID, v)
 	return u
 }
 
-// UpdateBusinessID sets the "business_id" field to the value that was provided on create.
-func (u *ProductUpsert) UpdateBusinessID() *ProductUpsert {
-	u.SetExcluded(product.FieldBusinessID)
+// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
+func (u *ProductUpsert) UpdateMerchantID() *ProductUpsert {
+	u.SetExcluded(product.FieldMerchantID)
 	return u
 }
 
@@ -921,17 +915,17 @@ func (u *ProductUpsertOne) UpdateUnit() *ProductUpsertOne {
 	})
 }
 
-// SetBusinessID sets the "business_id" field.
-func (u *ProductUpsertOne) SetBusinessID(v int64) *ProductUpsertOne {
+// SetMerchantID sets the "merchant_id" field.
+func (u *ProductUpsertOne) SetMerchantID(v int64) *ProductUpsertOne {
 	return u.Update(func(s *ProductUpsert) {
-		s.SetBusinessID(v)
+		s.SetMerchantID(v)
 	})
 }
 
-// UpdateBusinessID sets the "business_id" field to the value that was provided on create.
-func (u *ProductUpsertOne) UpdateBusinessID() *ProductUpsertOne {
+// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
+func (u *ProductUpsertOne) UpdateMerchantID() *ProductUpsertOne {
 	return u.Update(func(s *ProductUpsert) {
-		s.UpdateBusinessID()
+		s.UpdateMerchantID()
 	})
 }
 
@@ -1334,17 +1328,17 @@ func (u *ProductUpsertBulk) UpdateUnit() *ProductUpsertBulk {
 	})
 }
 
-// SetBusinessID sets the "business_id" field.
-func (u *ProductUpsertBulk) SetBusinessID(v int64) *ProductUpsertBulk {
+// SetMerchantID sets the "merchant_id" field.
+func (u *ProductUpsertBulk) SetMerchantID(v int64) *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
-		s.SetBusinessID(v)
+		s.SetMerchantID(v)
 	})
 }
 
-// UpdateBusinessID sets the "business_id" field to the value that was provided on create.
-func (u *ProductUpsertBulk) UpdateBusinessID() *ProductUpsertBulk {
+// UpdateMerchantID sets the "merchant_id" field to the value that was provided on create.
+func (u *ProductUpsertBulk) UpdateMerchantID() *ProductUpsertBulk {
 	return u.Update(func(s *ProductUpsert) {
-		s.UpdateBusinessID()
+		s.UpdateMerchantID()
 	})
 }
 
