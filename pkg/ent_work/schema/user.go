@@ -22,7 +22,7 @@ func (User) Fields() []ent.Field {
 		field.String("password").Default("").Sensitive().Comment("密码"),
 		field.Bool("is_frozen").Default(false).StructTag(`json:"is_frozen"`).Comment("是否冻结"),
 		field.Bool("is_recharge").Default(false).StructTag(`json:"is_recharge"`).Comment("是否充值过"),
-		field.Enum("user_type").Values("personal", "enterprise").Default("personal").StructTag(`json:"user_type"`).Comment("用户类型"),
+		field.Enum("user_type").Values("personal", "merchant").Default("personal").StructTag(`json:"user_type"`).Comment("用户类型"),
 		field.String("pop_version").Default("").StructTag(`json:"pop_version"`).Comment("用户最新弹窗版本"),
 		field.String("area_code").Default("+86").StructTag(`json:"area_code"`).Comment("国家区号"),
 		field.String("email").Default("").StructTag(`json:"email"'`).Comment("邮箱"),

@@ -185,8 +185,8 @@ const DefaultUserType = UserTypePersonal
 
 // UserType values.
 const (
-	UserTypePersonal   UserType = "personal"
-	UserTypeEnterprise UserType = "enterprise"
+	UserTypePersonal UserType = "personal"
+	UserTypeMerchant UserType = "merchant"
 )
 
 func (ut UserType) String() string {
@@ -196,7 +196,7 @@ func (ut UserType) String() string {
 // UserTypeValidator is a validator for the "user_type" field enum values. It is called by the builders before save.
 func UserTypeValidator(ut UserType) error {
 	switch ut {
-	case UserTypePersonal, UserTypeEnterprise:
+	case UserTypePersonal, UserTypeMerchant:
 		return nil
 	default:
 		return fmt.Errorf("user: invalid enum value for user_type field: %q", ut)
